@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f7fbe9a175494df4e8181712564b981f
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 38583
+  packageName: UI Tween
+  packageVersion: 1.0
+  assetPath: Assets/UITween/ExampleDynamicAnimation.unity
+  uploadId: 111192

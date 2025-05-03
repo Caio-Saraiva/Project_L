@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 35c3e8f9f3928534388f5c01b825bb66
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 38583
+  packageName: UI Tween
+  packageVersion: 1.0
+  assetPath: Assets/UITween/Prefabs/ImageIns.prefab
+  uploadId: 111192

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 743020d53b2c31845849b5d385168731
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 38583
+  packageName: UI Tween
+  packageVersion: 1.0
+  assetPath: Assets/UITween/ScenesExamplesScripts/FollowClick.cs
+  uploadId: 111192

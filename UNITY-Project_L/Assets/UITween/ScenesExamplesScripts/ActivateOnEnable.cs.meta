@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2c61e344f0cb3f947b03a36aad23bce1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 38583
+  packageName: UI Tween
+  packageVersion: 1.0
+  assetPath: Assets/UITween/ScenesExamplesScripts/ActivateOnEnable.cs
+  uploadId: 111192

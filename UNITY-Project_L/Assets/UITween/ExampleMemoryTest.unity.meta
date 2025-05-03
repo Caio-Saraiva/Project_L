@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e59803c243169864a9939c1d939afd08
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 38583
+  packageName: UI Tween
+  packageVersion: 1.0
+  assetPath: Assets/UITween/ExampleMemoryTest.unity
+  uploadId: 111192

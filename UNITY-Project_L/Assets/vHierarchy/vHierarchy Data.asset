@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a9752b0c8e144801967e6897679604b, type: 3}
+  m_Name: vHierarchy Data
+  m_EditorClassIdentifier: 
+  sceneDatas_byGuid:
+    keys:
+    - 99c9720ab356a0642a771bea13969a05
+    - 560e05674d71e364f98bbf161d4fe173
+    - 4d86ddf502c76974e97d927faf74b2dc
+    - 2ee87533d4924d54ab98570fb781bb81
+    values:
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-330585543-0
+        - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-410087039-0
+        - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-832575517-0
+        - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-737704368-0
+        values:
+        - colorIndex: 6
+          iconNameOrGuid: Camera Icon
+        - colorIndex: 3
+          iconNameOrGuid: Light Icon
+        - colorIndex: 3
+          iconNameOrGuid: AudioSource Icon
+        - colorIndex: 1
+          iconNameOrGuid: ScriptableObject Icon
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-1-560e05674d71e364f98bbf161d4fe173-4452720633255608222-0
+        - globalObjectIdString: GlobalObjectId_V1-1-560e05674d71e364f98bbf161d4fe173-7795499660853077201-0
+        - globalObjectIdString: GlobalObjectId_V1-1-560e05674d71e364f98bbf161d4fe173-5857294805264954244-0
+        - globalObjectIdString: GlobalObjectId_V1-1-560e05674d71e364f98bbf161d4fe173-3851470825747238559-0
+        - globalObjectIdString: GlobalObjectId_V1-1-560e05674d71e364f98bbf161d4fe173-6522830702734094431-0
+        - globalObjectIdString: GlobalObjectId_V1-1-560e05674d71e364f98bbf161d4fe173-273167262072769040-0
+        values:
+        - colorIndex: 5
+          iconNameOrGuid: Canvas Icon
+        - colorIndex: 7
+          iconNameOrGuid: 
+        - colorIndex: 8
+          iconNameOrGuid: 
+        - colorIndex: 4
+          iconNameOrGuid: 
+        - colorIndex: 5
+          iconNameOrGuid: Canvas Icon
+        - colorIndex: 1
+          iconNameOrGuid: ScriptableObject Icon
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-1-4d86ddf502c76974e97d927faf74b2dc-8764560396364002182-0
+        - globalObjectIdString: GlobalObjectId_V1-1-4d86ddf502c76974e97d927faf74b2dc-765732170230792954-0
+        - globalObjectIdString: GlobalObjectId_V1-1-4d86ddf502c76974e97d927faf74b2dc-8167333644396230548-0
+        values:
+        - colorIndex: 5
+          iconNameOrGuid: Canvas Icon
+        - colorIndex: 4
+          iconNameOrGuid: BoxCollider Icon
+        - colorIndex: 1
+          iconNameOrGuid: ScriptableObject Icon
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-1-2ee87533d4924d54ab98570fb781bb81-2351301966139257954-0
+        - globalObjectIdString: GlobalObjectId_V1-1-2ee87533d4924d54ab98570fb781bb81-7401053772848163684-0
+        - globalObjectIdString: GlobalObjectId_V1-1-2ee87533d4924d54ab98570fb781bb81-4703514535656635407-0
+        values:
+        - colorIndex: 5
+          iconNameOrGuid: Canvas Icon
+        - colorIndex: 4
+          iconNameOrGuid: BoxCollider Icon
+        - colorIndex: 1
+          iconNameOrGuid: ScriptableObject Icon

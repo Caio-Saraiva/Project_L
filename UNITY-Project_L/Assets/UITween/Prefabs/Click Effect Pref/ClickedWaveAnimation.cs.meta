@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 56014e6f11eff044ebf3cfef8ec3788e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - WaveObject: {fileID: 100000, guid: 9b803f85cde2c1c4db04360f0106130a, type: 2}
+  - CanvasMain: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 38583
+  packageName: UI Tween
+  packageVersion: 1.0
+  assetPath: Assets/UITween/Prefabs/Click Effect Pref/ClickedWaveAnimation.cs
+  uploadId: 111192
