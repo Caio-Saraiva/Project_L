@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 332baeb2c928750408b9258908ead54e, type: 3}
+  m_Name: DefaultLevelConfig
+  m_EditorClassIdentifier: 
+  tutorialCards:
+  - {fileID: 11400000, guid: 803cbf8a3c8f639428e1803dd465e0c1, type: 2}
+  - {fileID: 11400000, guid: 47dc0f791c96b7049b93bfc944732bdd, type: 2}
+  - {fileID: 11400000, guid: 1cb3325172b00b341accd80614d274eb, type: 2}
+  - {fileID: 11400000, guid: 2051cc30b5ab14e4c8ded4ed5eacc56b, type: 2}
+  - {fileID: 11400000, guid: 0727a00a0060e4d4cbd50ae728b524ad, type: 2}
+  - {fileID: 11400000, guid: 4ee741c8287fb104bbf920ceaef46961, type: 2}
+  - {fileID: 11400000, guid: 7994b9dbe0557a9488d4ac671ebf53fa, type: 2}
+  useProcedural: 1
+  maxGates: 4
+  allowedLabels: 000000000100000002000000
+  baseTime: 15
+  bonusTime: 5
+  penaltyTime: 5
+  basePoints: 10
+  bonusPoints: 5
+  penaltyPoints: -5
