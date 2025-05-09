@@ -25,6 +25,8 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-410087039-0
         - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-832575517-0
         - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-737704368-0
+        - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-520906848-0
+        - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1248259525-0
         values:
         - colorIndex: 6
           iconNameOrGuid: Camera Icon
@@ -34,6 +36,10 @@ MonoBehaviour:
           iconNameOrGuid: AudioSource Icon
         - colorIndex: 1
           iconNameOrGuid: ScriptableObject Icon
+        - colorIndex: 5
+          iconNameOrGuid: Canvas Icon
+        - colorIndex: 1
+          iconNameOrGuid: StandaloneInputModule Icon
     - goDatas_byGlobalId:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-1-560e05674d71e364f98bbf161d4fe173-4452720633255608222-0
