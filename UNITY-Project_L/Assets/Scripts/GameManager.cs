@@ -1,129 +1,94 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Níveis e Cards")]
-    public List<CircuitLevel> levels;
-
-    [Header("Prefabs & Referências")]
+    [Header("Card Prefab & UI")]
     public CircuitCardView cardPrefab;
-    public Transform cardSpawnPoint;
+    public Canvas uiCanvas;
+    public RectTransform cardParent;
+    public RectTransform receiveSlot;
+
+    [Header("Drag Zones")]
+    public RectTransform collectArea;
+    public RectTransform stampTableArea;
+    public DropZoneController sendZone;
+
+    [Header("Stamp Panel")]
     public StampPanelController stampPanel;
-    public DropZoneController dropZone;
 
-    [Header("Stamping Zone & Escalas")]
-    public RectTransform stampingZone;
-    public Transform smallSlotParent;
-    public Vector3 smallScale = Vector3.one * 0.5f;
-    public Vector3 stampScale = Vector3.one;
+    [Header("Escalas")]
+    [Range(0.1f, 2f)] public float zoomOutScale = 0.5f;
+    [Range(0.1f, 2f)] public float defaultScale = 1f;
 
-    [Header("Tempo & Pontuação")]
-    public float initialTimer = 30f;
-    private float timer;
-    private int score;
-
-    private int levelIndex = 0;
-    private int tutorialIndex = 0;
     private CircuitCardView currentCard;
-    private LabelMode currentLabelMode;
-    private CircuitLevel CurrentLevel => levels[levelIndex];
 
     void Start()
     {
-        timer = initialTimer;
-        dropZone.OnCardDropped += HandleCardDropped;
-        SpawnNextCard();
+        // só se inscreve uma vez aqui, não mexe mais depois  
+        sendZone.OnCardDropped += HandleSendZone;
     }
 
     void Update()
     {
-        timer -= Time.deltaTime;
-        if (timer <= 0f) EndSession();
+        if (currentCard == null)
+            SpawnNextCard();
     }
 
     void SpawnNextCard()
     {
-        // Escolhe tutorial ou procedural
-        CircuitDefinition def;
-        if (tutorialIndex < CurrentLevel.tutorialCards.Length)
-        {
-            def = CurrentLevel.tutorialCards[tutorialIndex++];
-        }
-        else if (CurrentLevel.useProcedural)
-        {
-            def = ProceduralGenerator.Generate(CurrentLevel);
-        }
-        else
-        {
-            EndSession();
-            return;
-        }
+        // instancia o card sob o canvas
+        currentCard = Instantiate(cardPrefab, cardParent);
 
-        // Instancia e injeta parâmetros de drag & drop
-        currentCard = Instantiate(cardPrefab, cardSpawnPoint);
+        // posiciona no receiveSlot
         var rt = currentCard.GetComponent<RectTransform>();
-        rt.localScale = smallScale;
+        rt.anchoredPosition = receiveSlot.anchoredPosition;
+        rt.localScale = Vector3.one * zoomOutScale;
 
-        currentCard.stampingZone = stampingZone;
-        currentCard.smallSlotParent = smallSlotParent;
-        currentCard.smallScale = smallScale;
-        currentCard.stampScale = stampScale;
+        // injeta referências de zonas e escalas
+        currentCard.collectArea = collectArea;
+        currentCard.stampTableArea = stampTableArea;
+        currentCard.zoomOutScale = zoomOutScale;
+        currentCard.defaultScale = defaultScale;
 
-        // Setup do card
-        currentCard.Setup(def);
-        currentLabelMode = def.labelMode;
+        // gera o circuito
+        currentCard.setup.Initialize();
 
-        // Registra eventos
-        currentCard.OnSent += HandleSent;
+        // prepara o painel de stamps
+        stampPanel.EnableAll();
         stampPanel.OnStamped += HandleStamped;
-
-        stampPanel.EnableAllStamps();
     }
 
     void HandleStamped(LabelMode mode, int value)
     {
-        if (mode != currentLabelMode)
-        {
-            // formato errado → envia como incorreto
-            currentCard.Send();
-            return;
-        }
-
+        // **não** validar aqui — apenas aplicar o selo
         currentCard.ApplyStamp(value);
-        // Aguarda o drop na zona de coleta
+        // trava os botões pra não trocar de selo
+        stampPanel.DisableAll();
     }
 
-    void HandleCardDropped(CircuitCardView card)
+    void HandleSendZone(CircuitCardView card)
     {
-        if (card == currentCard)
-            currentCard.Send();
-    }
+        if (card != currentCard) return;
 
-    void HandleSent(bool correct)
-    {
-        if (correct)
+        // depois de largar no sendZone é que valida:
+        if (!card.IsStamped)
         {
-            score += CurrentLevel.basePoints;
-            timer += CurrentLevel.bonusTime;
+            Debug.LogWarning("⚠️ Atenção: nenhum selo aplicado!");
+        }
+        else if (card.StampedValue == card.setup.expectedOutput)
+        {
+            Debug.Log("🎉 Parabéns! Resposta correta!");
         }
         else
         {
-            score += CurrentLevel.penaltyPoints;
-            timer -= CurrentLevel.penaltyTime;
+            Debug.Log("❌ Resposta errada!");
         }
 
-        // Cleanup
-        currentCard.OnSent -= HandleSent;
+        // cleanup dos listeners
         stampPanel.OnStamped -= HandleStamped;
 
+        // destrói e libera próximo card
         Destroy(currentCard.gameObject);
-        SpawnNextCard();
-    }
-
-    void EndSession()
-    {
-        Debug.Log($"Sessão encerrada! Score final: {score}");
-        enabled = false;
+        currentCard = null;
     }
 }
