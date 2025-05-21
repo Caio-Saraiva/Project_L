@@ -1555,7 +1555,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 608661348}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 332450628}
+        m_TargetAssemblyTypeName: EasyTween, Assembly-CSharp
+        m_MethodName: OpenCloseObjectAnimation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &608661348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2131,7 +2143,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 856283385}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1562557154}
+        m_TargetAssemblyTypeName: EasyTween, Assembly-CSharp
+        m_MethodName: OpenCloseObjectAnimation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &856283385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2341,7 +2365,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 964154852}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1562557154}
+        m_TargetAssemblyTypeName: EasyTween, Assembly-CSharp
+        m_MethodName: OpenCloseObjectAnimation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &964154852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2916,7 +2952,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1401172876}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 332450628}
+        m_TargetAssemblyTypeName: EasyTween, Assembly-CSharp
+        m_MethodName: OpenCloseObjectAnimation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1401172876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3191,7 +3239,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1508549455}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1450738731}
+        m_TargetAssemblyTypeName: EasyTween, Assembly-CSharp
+        m_MethodName: OpenCloseObjectAnimation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1508549455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4229,7 +4289,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2014374152}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1450738731}
+        m_TargetAssemblyTypeName: EasyTween, Assembly-CSharp
+        m_MethodName: OpenCloseObjectAnimation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2014374152
 MonoBehaviour:
   m_ObjectHideFlags: 0

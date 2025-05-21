@@ -269,8 +269,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   setup: {fileID: 4605963405189767419}
   stampOverlay: {fileID: 6137621222218871355}
-  zeroStampSprite: {fileID: 21300000, guid: 493e6a98b39916d4dbabccc17b703bba, type: 3}
-  oneStampSprite: {fileID: 21300000, guid: 2f2541adf8d33f64b80a49a0bc4cf8c5, type: 3}
+  bitZeroStampSprite: {fileID: 21300000, guid: 493e6a98b39916d4dbabccc17b703bba, type: 3}
+  bitOneStampSprite: {fileID: 21300000, guid: 2f2541adf8d33f64b80a49a0bc4cf8c5, type: 3}
+  boolFalseStampSprite: {fileID: 21300000, guid: 72fc5eb15f51365488d394307d3b55ab, type: 3}
+  boolTrueStampSprite: {fileID: 21300000, guid: 4ac580d82ff46c54285d553bd02d162f, type: 3}
+  signalLowStampSprite: {fileID: 21300000, guid: 99575c0084f2be04eabcdabed1838eb0, type: 3}
+  signalHighStampSprite: {fileID: 21300000, guid: 5137179cafaede04c8e7748a76de69f1, type: 3}
   outputText: {fileID: 7072441088575685472}
   collectArea: {fileID: 0}
   stampTableArea: {fileID: 0}
@@ -297,6 +301,8 @@ MonoBehaviour:
     inputSourceA: {fileID: 106724694117901827}
     inputSourceB: {fileID: 3373714634453673621}
     assignedGate: 0
+    gateName: 
+    outputValue: 0
   outputObject: {fileID: 6683267760077273534}
   gateSprites:
   - {fileID: 21300000, guid: dec0a7a2abdc7324586025f6bff8bdee, type: 3}

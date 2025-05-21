@@ -13,8 +13,15 @@ public class CircuitCardView : MonoBehaviour,
 
     [Header("Stamp Overlay")]
     public Image stampOverlay;
-    public Sprite zeroStampSprite;
-    public Sprite oneStampSprite;
+    [Header("Bit Stamps")]
+    public Sprite bitZeroStampSprite;
+    public Sprite bitOneStampSprite;
+    [Header("Bool Stamps")]
+    public Sprite boolFalseStampSprite;
+    public Sprite boolTrueStampSprite;
+    [Header("Signal Stamps")]
+    public Sprite signalLowStampSprite;
+    public Sprite signalHighStampSprite;
 
     [Header("Output Text (opcional)")]
     public TextMeshProUGUI outputText;
@@ -24,23 +31,26 @@ public class CircuitCardView : MonoBehaviour,
     [HideInInspector] public float defaultScale;
     [HideInInspector] public float zoomOutScale;
 
+    // estado de drag
     private CanvasGroup cg;
     private RectTransform rect;
     private Canvas rootCanvas;
     private Vector2 pointerOffset;
+
+    // estado de stamp
     private int? stampedValue;
+    private LabelMode? stampedMode;
 
     public event Action<bool> OnSent;
 
-    /// <summary>
-    /// True se já houve um carimbo aplicado.
-    /// </summary>
-    public bool IsStamped => stampedValue.HasValue;
+    /// <summary>True se o card já recebeu um carimbo.</summary>
+    public bool IsStamped => stampedMode.HasValue;
 
-    /// <summary>
-    /// Retorna o valor do carimbo (0 ou 1). Usar apenas se IsStamped for true.
-    /// </summary>
+    /// <summary>Retorna o valor carimbado (0 ou 1).</summary>
     public int StampedValue => stampedValue ?? 0;
+
+    /// <summary>Retorna o LabelMode do carimbo aplicado.</summary>
+    public LabelMode? StampedMode => stampedMode;
 
     void Awake()
     {
@@ -50,36 +60,57 @@ public class CircuitCardView : MonoBehaviour,
     }
 
     /// <summary>
-    /// Aplica o selo gráfico e atualiza o texto de saída.
+    /// Aplica o carimbo com o modo e valor escolhidos, mostra sprite e texto.
     /// </summary>
-    public void ApplyStamp(int value)
+    public void ApplyStamp(LabelMode mode, int value)
     {
-        if (stampedValue.HasValue) return;
+        if (stampedMode.HasValue) return;
+
+        stampedMode = mode;
         stampedValue = value;
 
-        if (stampOverlay != null)
+        Sprite sprite = null;
+        switch (mode)
         {
-            stampOverlay.sprite = (value == 0 ? zeroStampSprite : oneStampSprite);
+            case LabelMode.Bit:
+                sprite = (value == 0 ? bitZeroStampSprite : bitOneStampSprite);
+                break;
+            case LabelMode.Bool:
+                sprite = (value == 0 ? boolFalseStampSprite : boolTrueStampSprite);
+                break;
+            case LabelMode.Signal:
+                sprite = (value == 0 ? signalLowStampSprite : signalHighStampSprite);
+                break;
+        }
+
+        if (stampOverlay != null && sprite != null)
+        {
+            stampOverlay.sprite = sprite;
             stampOverlay.color = Color.white;
         }
 
         if (outputText != null)
-            outputText.text = ValueToString(value, setup.labelMode);
+            outputText.text = ValueToString(value, mode);
     }
 
     /// <summary>
-    /// Valida contra expectedOutput e dispara OnSent.
+    /// Valida se o carimbo bate com a saída e com o modo definido no setup.
     /// </summary>
     public void Send()
     {
-        if (!stampedValue.HasValue)
+        if (!stampedMode.HasValue)
         {
-            Debug.LogWarning("CircuitCardView: não há selo aplicado!");
+            Debug.LogWarning("CircuitCardView: nenhum carimbo aplicado!");
             return;
         }
-        bool correct = stampedValue.Value == setup.expectedOutput;
+
+        bool correct = (stampedMode.Value == setup.labelMode)
+                       && (stampedValue.Value == setup.expectedOutput);
+
         OnSent?.Invoke(correct);
     }
+
+    // ---------- Drag & Drop ----------
 
     public void OnBeginDrag(PointerEventData e)
     {
@@ -114,9 +145,9 @@ public class CircuitCardView : MonoBehaviour,
             collectArea, e.position, e.pressEventCamera);
 
         float oldScale = rect.localScale.x;
-        float newScale = oldScale;
-        if (overStamp) newScale = defaultScale;
-        else if (overCollect) newScale = zoomOutScale;
+        float newScale = overStamp ? defaultScale
+                       : overCollect ? zoomOutScale
+                       : oldScale;
 
         if (!Mathf.Approximately(newScale, oldScale))
         {
@@ -127,6 +158,7 @@ public class CircuitCardView : MonoBehaviour,
             );
             float ratio = newScale / oldScale;
             Vector2 scaledOffset = pointerOffset * ratio;
+
             rect.localScale = Vector3.one * newScale;
             rect.anchoredPosition = local + scaledOffset;
             pointerOffset = scaledOffset;
@@ -137,8 +169,8 @@ public class CircuitCardView : MonoBehaviour,
     {
         switch (mode)
         {
-            case LabelMode.Bool: return v == 1 ? "True" : "False";
-            case LabelMode.Signal: return v == 1 ? "High" : "Low";
+            case LabelMode.Bool: return v == 1 ? "TRUE" : "FALSE";
+            case LabelMode.Signal: return v == 1 ? "HIGH" : "LOW";
             default: return v.ToString();
         }
     }
