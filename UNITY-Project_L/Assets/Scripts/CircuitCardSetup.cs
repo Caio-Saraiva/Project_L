@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 [System.Serializable]
 public class SlotConfig
@@ -15,34 +16,39 @@ public class SlotConfig
     [Tooltip("Input A deste slot")]
     public GameObject inputSourceA;
 
-    [Tooltip("Input B deste slot")]
+    [Tooltip("Input B deste slot)")]
     public GameObject inputSourceB;
 
+    [Header("Forçar NOT Gate?")]
+    [Tooltip("Se verdadeiro, este slot sempre usará uma porta NOT")]
+    public bool onlyNotGate = false;
+
     [HideInInspector] public GateType assignedGate;
-
-    [Header("Debug (preenchido em Initialize)")]
-    [Tooltip("Para debug: nome do gate atribuído")]
-    public string gateName;
-
+    [HideInInspector] public string gateName;
     [HideInInspector] public int outputValue;
+    [HideInInspector] public bool isComputed;
 }
 
 public class CircuitCardSetup : MonoBehaviour
 {
-    [Header("Entradas (filhos com TextMeshProUGUI)")]
+    [Header("Entradas (cada filho deve ter um TextMeshProUGUI)")]
     public List<GameObject> inputObjects;
 
     [Header("Slots de Gate")]
     public List<SlotConfig> slots;
 
+    [Header("Output Connector (slot que alimenta a saída)")]
+    [Tooltip("Arraste aqui o GameObject do slot cuja saída é a saída final")]
+    public GameObject outputSource;
+
     [Header("Saída (filho com TextMeshProUGUI)")]
     public GameObject outputObject;
 
     [Header("Sprites de Portas (AND, NAND, OR, NOR, NOT, XOR, XNOR)")]
-    [Tooltip("Arraste 7 sprites na ordem do enum GateType")]
+    [Tooltip("Arraste 7 sprites na mesma ordem do enum GateType")]
     public Sprite[] gateSprites;
 
-    [Header("Portas Permitidas")]
+    [Header("Portas Permitidas (quando onlyNotGate == false)")]
     public bool allowAND = true;
     public bool allowNAND = true;
     public bool allowOR = true;
@@ -51,7 +57,7 @@ public class CircuitCardSetup : MonoBehaviour
     public bool allowXOR = true;
     public bool allowXNOR = true;
 
-    [Header("Randomizar Formato de Rótulo")]
+    [Header("Randomizar Formato de Rótulo (apenas UI)")]
     public bool randomLabelMode = true;
     public LabelMode labelMode = LabelMode.Bit;
 
@@ -60,7 +66,11 @@ public class CircuitCardSetup : MonoBehaviour
 
     public void Initialize()
     {
-        // 1) Escolhe labelMode
+        // 0) Resetar flags
+        foreach (var s in slots)
+            s.isComputed = false;
+
+        // 1) Escolher labelMode (apenas para UI)
         if (randomLabelMode)
         {
             var modes = System.Enum.GetValues(typeof(LabelMode));
@@ -69,17 +79,18 @@ public class CircuitCardSetup : MonoBehaviour
             );
         }
 
-        // 2) Randomiza valores de entrada e atualiza o texto
+        // 2) Gerar e exibir valores de entrada
         inputValues = new List<int>();
         for (int i = 0; i < inputObjects.Count; i++)
         {
             int v = Random.Range(0, 2);
             inputValues.Add(v);
-            var txt = inputObjects[i].GetComponentInChildren<TextMeshProUGUI>();
+            var txt = inputObjects[i]
+                      .GetComponentInChildren<TextMeshProUGUI>();
             if (txt != null) txt.text = FormatValue(v);
         }
 
-        // 3) Prepara lista de tipos permitidos
+        // 3) Montar pool de gates permitidos
         var allowed = new List<GateType>();
         if (allowAND) allowed.Add(GateType.AND);
         if (allowNAND) allowed.Add(GateType.NAND);
@@ -89,20 +100,18 @@ public class CircuitCardSetup : MonoBehaviour
         if (allowXOR) allowed.Add(GateType.XOR);
         if (allowXNOR) allowed.Add(GateType.XNOR);
 
-        // 4) Cria mapeamento slotObject → SlotConfig
-        var slotMap = new Dictionary<GameObject, SlotConfig>();
-        foreach (var slot in slots)
-            slotMap[slot.slotObject] = slot;
-
-        // 5) Para cada slot: escolhe gate, sprite, nome e calcula outputValue
+        // 4) Sortear tipo + sprite + gateName
         foreach (var slot in slots)
         {
-            // Sorteia o tipo de porta
-            var choice = allowed[Random.Range(0, allowed.Count)];
+            GateType choice = slot.onlyNotGate
+                ? GateType.NOT
+                : (allowed.Count > 0
+                    ? allowed[Random.Range(0, allowed.Count)]
+                    : GateType.NOT);
+
             slot.assignedGate = choice;
             slot.gateName = choice.ToString();
 
-            // Atribui sprite no Image do slot
             if (slot.slotImage != null
              && gateSprites != null
              && (int)choice < gateSprites.Length)
@@ -110,53 +119,87 @@ public class CircuitCardSetup : MonoBehaviour
                 slot.slotImage.sprite = gateSprites[(int)choice];
                 slot.slotImage.color = Color.white;
             }
-
-            // Limpa texto antigo se houver
-            var txt = slot.slotObject.GetComponentInChildren<TextMeshProUGUI>();
-            if (txt != null) txt.text = "";
-
-            // Obtém valores de entrada A e B
-            int inA = GetSourceValue(slot.inputSourceA, slotMap);
-            int inB = (slot.assignedGate == GateType.NOT)
-                    ? 0
-                    : GetSourceValue(slot.inputSourceB, slotMap);
-
-            // Avalia a porta
-            slot.outputValue = EvaluateGate(choice, inA, inB);
         }
 
-        // 6) A saída esperada é o outputValue do último slot
-        if (slots.Count > 0)
-            expectedOutput = slots[slots.Count - 1].outputValue;
-        else
-            expectedOutput = 0;
+        // 5) Avaliar todo o grafo topologicamente
+        var pending = new List<SlotConfig>(slots);
+        var map = slots.ToDictionary(s => s.slotObject, s => s);
 
-        // Limpa o texto de saída
-        var outTxt = outputObject.GetComponentInChildren<TextMeshProUGUI>();
-        if (outTxt != null) outTxt.text = "";
+        while (pending.Count > 0)
+        {
+            bool didCompute = false;
+
+            for (int i = pending.Count - 1; i >= 0; i--)
+            {
+                var slot = pending[i];
+
+                bool aReady = inputObjects.Contains(slot.inputSourceA)
+                           || (map.TryGetValue(slot.inputSourceA, out var sa) && sa.isComputed);
+                bool bReady = slot.assignedGate == GateType.NOT
+                           || inputObjects.Contains(slot.inputSourceB)
+                           || (map.TryGetValue(slot.inputSourceB, out var sb) && sb.isComputed);
+
+                if (aReady && bReady)
+                {
+                    int a = GetSourceValue(slot.inputSourceA, map);
+                    int b = slot.assignedGate == GateType.NOT
+                            ? 0
+                            : GetSourceValue(slot.inputSourceB, map);
+
+                    slot.outputValue = EvaluateGate(slot.assignedGate, a, b);
+                    slot.isComputed = true;
+                    pending.RemoveAt(i);
+                    didCompute = true;
+                }
+            }
+
+            if (!didCompute)
+            {
+                Debug.LogWarning("CircuitCardSetup: circuito cíclico ou inválido");
+                break;
+            }
+        }
+
+        // 6) Definir expectedOutput a partir do outputSource
+        if (outputSource != null && map.TryGetValue(outputSource, out var outSlot))
+        {
+            expectedOutput = outSlot.outputValue;
+        }
+        else if (slots.Count > 0)
+        {
+            expectedOutput = slots[slots.Count - 1].outputValue;
+        }
+        else
+        {
+            expectedOutput = 0;
+        }
+
+        Debug.Log($"[Setup] labelMode={labelMode}, expectedOutput(bit)={expectedOutput}");
+
+        // **NÃO** preenche o UI de saída aqui: ficará vazio até o jogador carimbar
     }
 
-    // Retorna 0/1 para um GameObject de input ou slot
-    private int GetSourceValue(GameObject src, Dictionary<GameObject, SlotConfig> slotMap)
+    private int GetSourceValue(
+        GameObject src,
+        Dictionary<GameObject, SlotConfig> map)
     {
         int idx = inputObjects.IndexOf(src);
-        if (idx != -1) return inputValues[idx];
-        if (slotMap.TryGetValue(src, out var slot))
-            return slot.outputValue;
-        Debug.LogWarning($"CircuitCardSetup: fonte desconhecida {src.name}");
+        if (idx >= 0) return inputValues[idx];
+        if (map.TryGetValue(src, out var slot)) return slot.outputValue;
+
+        Debug.LogWarning($"CircuitCardSetup: fonte '{src.name}' não mapeada");
         return 0;
     }
 
-    // Lógica das portas
-    private int EvaluateGate(GateType type, int a, int b)
+    private int EvaluateGate(GateType t, int a, int b)
     {
-        switch (type)
+        switch (t)
         {
-            case GateType.AND: return (a & b) == 1 ? 1 : 0;
+            case GateType.AND: return a & b;
             case GateType.NAND: return (a & b) == 1 ? 0 : 1;
-            case GateType.OR: return (a | b) == 1 ? 1 : 0;
+            case GateType.OR: return a | b;
             case GateType.NOR: return (a | b) == 1 ? 0 : 1;
-            case GateType.XOR: return (a ^ b);
+            case GateType.XOR: return a ^ b;
             case GateType.XNOR: return (a ^ b) == 1 ? 0 : 1;
             case GateType.NOT: return a == 1 ? 0 : 1;
             default: return 0;

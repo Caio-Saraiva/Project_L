@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
@@ -13,17 +13,20 @@ public class CircuitCardView : MonoBehaviour,
 
     [Header("Stamp Overlay")]
     public Image stampOverlay;
+
     [Header("Bit Stamps")]
     public Sprite bitZeroStampSprite;
     public Sprite bitOneStampSprite;
+
     [Header("Bool Stamps")]
     public Sprite boolFalseStampSprite;
     public Sprite boolTrueStampSprite;
+
     [Header("Signal Stamps")]
     public Sprite signalLowStampSprite;
     public Sprite signalHighStampSprite;
 
-    [Header("Output Text (opcional)")]
+    [Header("Output Text (apenas após carimbar)")]
     public TextMeshProUGUI outputText;
 
     [HideInInspector] public RectTransform collectArea;
@@ -31,37 +34,30 @@ public class CircuitCardView : MonoBehaviour,
     [HideInInspector] public float defaultScale;
     [HideInInspector] public float zoomOutScale;
 
-    // estado de drag
     private CanvasGroup cg;
     private RectTransform rect;
     private Canvas rootCanvas;
     private Vector2 pointerOffset;
 
-    // estado de stamp
     private int? stampedValue;
     private LabelMode? stampedMode;
 
-    public event Action<bool> OnSent;
-
-    /// <summary>True se o card j� recebeu um carimbo.</summary>
     public bool IsStamped => stampedMode.HasValue;
-
-    /// <summary>Retorna o valor carimbado (0 ou 1).</summary>
     public int StampedValue => stampedValue ?? 0;
-
-    /// <summary>Retorna o LabelMode do carimbo aplicado.</summary>
     public LabelMode? StampedMode => stampedMode;
+
+    public event Action<bool> OnSent;
 
     void Awake()
     {
         cg = GetComponent<CanvasGroup>();
         rect = GetComponent<RectTransform>();
         rootCanvas = GetComponentInParent<Canvas>();
+
+        if (outputText != null)
+            outputText.text = "";
     }
 
-    /// <summary>
-    /// Aplica o carimbo com o modo e valor escolhidos, mostra sprite e texto.
-    /// </summary>
     public void ApplyStamp(LabelMode mode, int value)
     {
         if (stampedMode.HasValue) return;
@@ -73,13 +69,13 @@ public class CircuitCardView : MonoBehaviour,
         switch (mode)
         {
             case LabelMode.Bit:
-                sprite = (value == 0 ? bitZeroStampSprite : bitOneStampSprite);
+                sprite = value == 0 ? bitZeroStampSprite : bitOneStampSprite;
                 break;
             case LabelMode.Bool:
-                sprite = (value == 0 ? boolFalseStampSprite : boolTrueStampSprite);
+                sprite = value == 0 ? boolFalseStampSprite : boolTrueStampSprite;
                 break;
             case LabelMode.Signal:
-                sprite = (value == 0 ? signalLowStampSprite : signalHighStampSprite);
+                sprite = value == 0 ? signalLowStampSprite : signalHighStampSprite;
                 break;
         }
 
@@ -93,9 +89,6 @@ public class CircuitCardView : MonoBehaviour,
             outputText.text = ValueToString(value, mode);
     }
 
-    /// <summary>
-    /// Valida se o carimbo bate com a sa�da e com o modo definido no setup.
-    /// </summary>
     public void Send()
     {
         if (!stampedMode.HasValue)
@@ -103,46 +96,46 @@ public class CircuitCardView : MonoBehaviour,
             Debug.LogWarning("CircuitCardView: nenhum carimbo aplicado!");
             return;
         }
-
-        bool correct = (stampedMode.Value == setup.labelMode)
-                       && (stampedValue.Value == setup.expectedOutput);
-
+        bool correct = stampedMode.Value == setup.labelMode
+                       && stampedValue.Value == setup.expectedOutput;
         OnSent?.Invoke(correct);
     }
 
-    // ---------- Drag & Drop ----------
+    // ─── Drag & Drop ───
 
-    public void OnBeginDrag(PointerEventData e)
+    public void OnBeginDrag(PointerEventData eventData)
     {
         cg.blocksRaycasts = false;
         rect.SetParent(rootCanvas.transform, true);
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             rootCanvas.transform as RectTransform,
-            e.position, e.pressEventCamera,
-            out Vector2 local
+            eventData.position,
+            eventData.pressEventCamera,
+            out Vector2 localPointer
         );
-        pointerOffset = rect.anchoredPosition - local;
+        pointerOffset = rect.anchoredPosition - localPointer;
     }
 
-    public void OnDrag(PointerEventData e)
+    public void OnDrag(PointerEventData eventData)
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             rootCanvas.transform as RectTransform,
-            e.position, e.pressEventCamera,
-            out Vector2 local
+            eventData.position,
+            eventData.pressEventCamera,
+            out Vector2 localPointer
         );
-        rect.anchoredPosition = local + pointerOffset;
+        rect.anchoredPosition = localPointer + pointerOffset;
     }
 
-    public void OnEndDrag(PointerEventData e)
+    public void OnEndDrag(PointerEventData eventData)
     {
         cg.blocksRaycasts = true;
 
         bool overStamp = RectTransformUtility.RectangleContainsScreenPoint(
-            stampTableArea, e.position, e.pressEventCamera);
+            stampTableArea, eventData.position, eventData.pressEventCamera);
         bool overCollect = RectTransformUtility.RectangleContainsScreenPoint(
-            collectArea, e.position, e.pressEventCamera);
+            collectArea, eventData.position, eventData.pressEventCamera);
 
         float oldScale = rect.localScale.x;
         float newScale = overStamp ? defaultScale
@@ -153,17 +146,20 @@ public class CircuitCardView : MonoBehaviour,
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rootCanvas.transform as RectTransform,
-                e.position, e.pressEventCamera,
-                out Vector2 local
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 localPointer
             );
             float ratio = newScale / oldScale;
             Vector2 scaledOffset = pointerOffset * ratio;
 
             rect.localScale = Vector3.one * newScale;
-            rect.anchoredPosition = local + scaledOffset;
+            rect.anchoredPosition = localPointer + scaledOffset;
             pointerOffset = scaledOffset;
         }
     }
+
+    // ─── Utilitário ───
 
     private string ValueToString(int v, LabelMode mode)
     {

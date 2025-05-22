@@ -1,21 +1,9 @@
 ﻿using UnityEngine;
-using TMPro;
+using UnityEngine.Events;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
-[System.Serializable]
-public class CircuitPrefabEntry
-{
-    [Tooltip("Prefab de CircuitCardView a ser instanciado")]
-    public CircuitCardView prefab;
-
-    [Tooltip("Level mínimo para que este prefab possa aparecer")]
-    public int minLevel = 1;
-
-    [Header("Chance de Spawn (%)")]
-    [Range(0, 100)]
-    public int spawnChance = 100;
-}
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -23,7 +11,7 @@ public class GameManager : MonoBehaviour
     public List<CircuitPrefabEntry> circuitPrefabs;
 
     [Header("Card & UI")]
-    public Canvas uiCanvas;
+    public Canvas uiCanvas;      // Overlay → cam = null
     public RectTransform cardParent;
     public RectTransform receiveSlot;
 
@@ -37,12 +25,16 @@ public class GameManager : MonoBehaviour
 
     [Header("Score Settings")]
     public TextMeshProUGUI scoreText;
+    [Tooltip("Pontos ganhos base por acerto")]
     public int pointsPerCorrect = 10;
+    [Tooltip("Pontos perdidos por erro ou ausência de selo")]
     public int pointsPerWrong = 5;
 
     [Header("Timer Settings")]
     public TextMeshProUGUI timerText;
+    [Tooltip("Tempo inicial (segundos)")]
     public float initialTime = 60f;
+    [Tooltip("Bônus de tempo por acerto (segundos)")]
     public float timeBonus = 5f;
 
     [Header("Level Display")]
@@ -52,12 +44,37 @@ public class GameManager : MonoBehaviour
     [Range(0.1f, 2f)] public float zoomOutScale = 0.5f;
     [Range(0.1f, 2f)] public float defaultScale = 1f;
 
+    [Header("Feedback Events")]
+    public UnityEvent onCorrect;
+    public UnityEvent onError;
+
+    [Header("Floating Feedback Texts")]
+    [Tooltip("Texto para feedback de score (+/- pts)")]
+    public TextMeshProUGUI scoreFeedbackText;
+    [Tooltip("Texto para feedback de tempo (+ s)")]
+    public TextMeshProUGUI timeFeedbackText;
+
+    [Header("Feedback Colors")]
+    public Color scorePositiveColor = Color.green;
+    public Color scoreNegativeColor = Color.red;
+    public Color timePositiveColor = Color.cyan;
+
+    [Header("Feedback Timings")]
+    [Tooltip("Quanto tempo o texto fica totalmente visível antes de sumir")]
+    public float feedbackDisplayTime = 0.5f;
+    [Tooltip("Duração do fade-out")]
+    public float feedbackFadeTime = 0.5f;
+
     // runtime state
+    private CircuitPrefabEntry currentEntry;
     private CircuitCardView currentCard;
     private int score;
     private int level;
     private float timer;
     private bool gameActive;
+
+    private Coroutine scoreFeedbackRoutine;
+    private Coroutine timeFeedbackRoutine;
 
     void Start()
     {
@@ -69,13 +86,20 @@ public class GameManager : MonoBehaviour
     {
         if (!gameActive) return;
 
+        // Atualiza timer
         timer -= Time.deltaTime;
         if (timer < 0f) timer = 0f;
         UpdateTimerUI();
 
-        if (timer <= 0f) { EndGame(); return; }
+        if (timer <= 0f)
+        {
+            EndGame();
+            return;
+        }
 
-        if (currentCard == null) SpawnNextCard();
+        // Gera card se não houver
+        if (currentCard == null)
+            SpawnNextCard();
     }
 
     public void ResetGame()
@@ -89,6 +113,9 @@ public class GameManager : MonoBehaviour
         UpdateLevelUI();
         UpdateTimerUI();
 
+        ClearFeedbackText(scoreFeedbackText);
+        ClearFeedbackText(timeFeedbackText);
+
         if (currentCard != null)
         {
             Destroy(currentCard.gameObject);
@@ -98,48 +125,54 @@ public class GameManager : MonoBehaviour
 
     private void SpawnNextCard()
     {
-        // filtra pelos level mínimos
-        var available = circuitPrefabs
+        // filtra por nível e spawnChance>0
+        var avail = circuitPrefabs
             .Where(e => level >= e.minLevel && e.spawnChance > 0)
             .ToList();
+        if (avail.Count == 0)
+            avail = circuitPrefabs.Where(e => e.spawnChance > 0).ToList();
 
-        // fallback: se nenhum disponível, permite todos com spawnChance > 0
-        if (available.Count == 0)
-            available = circuitPrefabs.Where(e => e.spawnChance > 0).ToList();
-
-        // soma total de chances
-        int totalChance = available.Sum(e => e.spawnChance);
-        if (totalChance <= 0)
-            totalChance = available.Count; // evita zero → uniform
-
-        // escolhe entrada por peso
-        int roll = Random.Range(0, totalChance);
-        CircuitPrefabEntry chosen = null;
-        int cum = 0;
-        foreach (var entry in available)
+        // sorteio ponderado por spawnChance
+        int total = avail.Sum(e => e.spawnChance);
+        if (total == 0) total = avail.Count;
+        int roll = Random.Range(0, total), cum = 0;
+        currentEntry = avail[0];
+        foreach (var e in avail)
         {
-            cum += entry.spawnChance;
+            cum += e.spawnChance;
             if (roll < cum)
             {
-                chosen = entry;
+                currentEntry = e;
                 break;
             }
         }
-        if (chosen == null) chosen = available[Random.Range(0, available.Count)];
 
-        // instancia o prefab escolhido
-        currentCard = Instantiate(chosen.prefab, cardParent);
-        var rt = currentCard.GetComponent<RectTransform>();
-        rt.anchoredPosition = receiveSlot.anchoredPosition;
-        rt.localScale = Vector3.one * zoomOutScale;
+        // instancia como filho de cardParent
+        currentCard = Instantiate(currentEntry.prefab, cardParent);
+        var cardRT = currentCard.GetComponent<RectTransform>();
 
+        // posiciona sobre receiveSlot → coords locais de cardParent
+        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(
+            null,
+            receiveSlot.position
+        );
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            cardParent,
+            screenPoint,
+            null,
+            out Vector2 localPoint
+        );
+        cardRT.anchoredPosition = localPoint;
+        cardRT.localScale = Vector3.one * zoomOutScale;
+
+        // injeta refs e inicializa
         currentCard.collectArea = collectArea;
         currentCard.stampTableArea = stampTableArea;
         currentCard.zoomOutScale = zoomOutScale;
         currentCard.defaultScale = defaultScale;
-
         currentCard.setup.Initialize();
 
+        // prepara stamps
         stampPanel.EnableAll();
         stampPanel.OnStamped += HandleStamped;
     }
@@ -163,18 +196,26 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("❌ Resposta errada (modo ou ausência de selo).");
             score -= pointsPerWrong;
+            onError?.Invoke();
+            ShowScoreFeedback(-pointsPerWrong);
         }
         else if (!correctValue)
         {
             Debug.Log($"❌ Valor incorreto! Esperado {card.setup.expectedOutput}.");
             score -= pointsPerWrong;
+            onError?.Invoke();
+            ShowScoreFeedback(-pointsPerWrong);
         }
         else
         {
-            Debug.Log("🎉 Parabéns! Modo e valor corretos!");
-            score += pointsPerCorrect;
+            int gained = Mathf.RoundToInt(pointsPerCorrect * currentEntry.scoreMultiplier);
+            Debug.Log($"🎉 Correto! +{gained} pontos.");
+            score += gained;
             timer += timeBonus;
             level += 1;
+            onCorrect?.Invoke();
+            ShowScoreFeedback(+gained);
+            ShowTimeFeedback(+timeBonus);
         }
 
         score = Mathf.Max(0, score);
@@ -213,5 +254,60 @@ public class GameManager : MonoBehaviour
         int seconds = Mathf.FloorToInt(timer) % 60;
         int minutes = Mathf.FloorToInt(timer / 60);
         timerText.text = $"{minutes:00}:{seconds:00}:{centis:00}";
+    }
+
+    // ─── Floating feedback ───
+
+    private void ShowScoreFeedback(int delta)
+    {
+        if (scoreFeedbackRoutine != null)
+            StopCoroutine(scoreFeedbackRoutine);
+
+        scoreFeedbackText.text = $"{(delta > 0 ? "+" : "")}{delta} pts";
+        scoreFeedbackText.color = delta >= 0
+            ? scorePositiveColor
+            : scoreNegativeColor;
+        SetAlpha(scoreFeedbackText, 1f);
+
+        scoreFeedbackRoutine = StartCoroutine(FeedbackCoroutine(scoreFeedbackText));
+    }
+
+    private void ShowTimeFeedback(float delta)
+    {
+        if (timeFeedbackRoutine != null)
+            StopCoroutine(timeFeedbackRoutine);
+
+        timeFeedbackText.text = $"{(delta > 0 ? "+" : "")}{Mathf.RoundToInt(delta)} s";
+        timeFeedbackText.color = timePositiveColor;
+        SetAlpha(timeFeedbackText, 1f);
+
+        timeFeedbackRoutine = StartCoroutine(FeedbackCoroutine(timeFeedbackText));
+    }
+
+    private IEnumerator FeedbackCoroutine(TextMeshProUGUI text)
+    {
+        yield return new WaitForSeconds(feedbackDisplayTime);
+
+        float elapsed = 0f;
+        while (elapsed < feedbackFadeTime)
+        {
+            elapsed += Time.deltaTime;
+            float a = Mathf.Lerp(1f, 0f, elapsed / feedbackFadeTime);
+            SetAlpha(text, a);
+            yield return null;
+        }
+        ClearFeedbackText(text);
+    }
+
+    private void SetAlpha(TextMeshProUGUI text, float alpha)
+    {
+        var c = text.color;
+        c.a = alpha;
+        text.color = c;
+    }
+
+    private void ClearFeedbackText(TextMeshProUGUI text)
+    {
+        text.text = "";
     }
 }

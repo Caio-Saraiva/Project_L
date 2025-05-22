@@ -16,14 +16,10 @@ public class StampPanelController : MonoBehaviour
     public Button stampLowButton;
     public Button stampHighButton;
 
-    /// <summary>
-    /// Disparado com o LabelMode e o valor 0/1 escolhidos.
-    /// </summary>
     public event Action<LabelMode, int> OnStamped;
 
     void Awake()
     {
-        // Liga cada botão ao seu método
         stampZeroButton.onClick.AddListener(StampZero);
         stampOneButton.onClick.AddListener(StampOne);
         stampFalseButton.onClick.AddListener(StampFalse);
@@ -32,13 +28,12 @@ public class StampPanelController : MonoBehaviour
         stampHighButton.onClick.AddListener(StampHigh);
     }
 
-    // Cada método dispara o evento e trava todos os botões
-    public void StampZero() { InvokeStamp(LabelMode.Bit, 0); }
-    public void StampOne() { InvokeStamp(LabelMode.Bit, 1); }
-    public void StampFalse() { InvokeStamp(LabelMode.Bool, 0); }
-    public void StampTrue() { InvokeStamp(LabelMode.Bool, 1); }
-    public void StampLow() { InvokeStamp(LabelMode.Signal, 0); }
-    public void StampHigh() { InvokeStamp(LabelMode.Signal, 1); }
+    public void StampZero() => InvokeStamp(LabelMode.Bit, 0);
+    public void StampOne() => InvokeStamp(LabelMode.Bit, 1);
+    public void StampFalse() => InvokeStamp(LabelMode.Bool, 0);
+    public void StampTrue() => InvokeStamp(LabelMode.Bool, 1);
+    public void StampLow() => InvokeStamp(LabelMode.Signal, 0);
+    public void StampHigh() => InvokeStamp(LabelMode.Signal, 1);
 
     void InvokeStamp(LabelMode mode, int value)
     {
@@ -46,7 +41,6 @@ public class StampPanelController : MonoBehaviour
         OnStamped?.Invoke(mode, value);
     }
 
-    /// <summary>Reabilita todos os botões (chamar antes de cada novo card).</summary>
     public void EnableAll()
     {
         stampZeroButton.interactable = true;
@@ -57,7 +51,7 @@ public class StampPanelController : MonoBehaviour
         stampHighButton.interactable = true;
     }
 
-   public void DisableAll()
+    public void DisableAll()
     {
         stampZeroButton.interactable = false;
         stampOneButton.interactable = false;
@@ -65,5 +59,30 @@ public class StampPanelController : MonoBehaviour
         stampTrueButton.interactable = false;
         stampLowButton.interactable = false;
         stampHighButton.interactable = false;
+    }
+
+    // desabilita botões que não são do formato Bit
+    public void DisableBoolAndSignal()
+    {
+        stampFalseButton.interactable = false;
+        stampTrueButton.interactable = false;
+        stampLowButton.interactable = false;
+        stampHighButton.interactable = false;
+    }
+    // não-Bit & não-Bool
+    public void DisableBitAndSignal()
+    {
+        stampZeroButton.interactable = false;
+        stampOneButton.interactable = false;
+        stampLowButton.interactable = false;
+        stampHighButton.interactable = false;
+    }
+    // não-Bit & não-Signal
+    public void DisableBitAndBool()
+    {
+        stampZeroButton.interactable = false;
+        stampOneButton.interactable = false;
+        stampFalseButton.interactable = false;
+        stampTrueButton.interactable = false;
     }
 }
