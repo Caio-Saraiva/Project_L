@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     public StampPanelController stampPanel;
 
     [Header("Score Settings")]
-    public TextMeshProUGUI scoreText;
+    public List<TextMeshProUGUI> scoreTexts;  // agora lista dinâmica
     [Tooltip("Pontos ganhos base por acerto")]
     public int pointsPerCorrect = 10;
     [Tooltip("Pontos perdidos por erro ou ausência de selo")]
@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
     public float timeBonus = 5f;
 
     [Header("Level Display")]
-    public TextMeshProUGUI levelText;
+    public List<TextMeshProUGUI> levelTexts;  // agora lista dinâmica
 
     [Header("Card Scale Settings")]
     [Range(0.1f, 2f)] public float zoomOutScale = 0.5f;
@@ -246,14 +246,16 @@ public class GameManager : MonoBehaviour
 
     private void UpdateScoreUI()
     {
-        if (scoreText != null)
-            scoreText.text = $"SCORE: {score}";
+        foreach (var txt in scoreTexts)
+            if (txt != null)
+                txt.text = $"SCORE: {score}";
     }
 
     private void UpdateLevelUI()
     {
-        if (levelText != null)
-            levelText.text = $"LEVEL {level}";
+        foreach (var txt in levelTexts)
+            if (txt != null)
+                txt.text = $"LEVEL {level}";
     }
 
     private void UpdateTimerUI()
