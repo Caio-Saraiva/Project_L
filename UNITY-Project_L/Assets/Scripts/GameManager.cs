@@ -48,10 +48,12 @@ public class GameManager : MonoBehaviour
     public UnityEvent onCorrect;
     public UnityEvent onError;
 
+    [Header("Game Events")]
+    [Tooltip("Invocado quando o tempo acabar")]
+    public UnityEvent onTimeUp;
+
     [Header("Floating Feedback Texts")]
-    [Tooltip("Texto para feedback de score (+/- pts)")]
     public TextMeshProUGUI scoreFeedbackText;
-    [Tooltip("Texto para feedback de tempo (+ s)")]
     public TextMeshProUGUI timeFeedbackText;
 
     [Header("Feedback Colors")]
@@ -65,7 +67,7 @@ public class GameManager : MonoBehaviour
     [Tooltip("Duração do fade-out")]
     public float feedbackFadeTime = 0.5f;
 
-    // runtime state
+    // estado runtime
     private CircuitPrefabEntry currentEntry;
     private CircuitCardView currentCard;
     private int score;
@@ -79,14 +81,14 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         sendZone.OnCardDropped += HandleSendZone;
-        ResetGame();
+        StartGame();
     }
 
     void Update()
     {
         if (!gameActive) return;
 
-        // Atualiza timer
+        // decrementa timer
         timer -= Time.deltaTime;
         if (timer < 0f) timer = 0f;
         UpdateTimerUI();
@@ -97,42 +99,58 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Gera card se não houver
+        // gera próximo card se não houver nenhum
         if (currentCard == null)
             SpawnNextCard();
     }
 
-    public void ResetGame()
+    public void StartGame()
     {
-        score = 0;
-        level = 1;
-        timer = initialTime;
-        gameActive = true;
-
-        UpdateScoreUI();
-        UpdateLevelUI();
-        UpdateTimerUI();
-
-        ClearFeedbackText(scoreFeedbackText);
-        ClearFeedbackText(timeFeedbackText);
-
+        // limpar qualquer card anterior
         if (currentCard != null)
         {
             Destroy(currentCard.gameObject);
             currentCard = null;
         }
+
+        // re-assina evento
+        sendZone.OnCardDropped -= HandleSendZone;
+        sendZone.OnCardDropped += HandleSendZone;
+
+        ResetScore();
+        ResetLevel();
+        ResetTimer();
+        ClearFeedbackText(scoreFeedbackText);
+        ClearFeedbackText(timeFeedbackText);
+        gameActive = true;
+    }
+
+    private void ResetScore()
+    {
+        score = 0;
+        UpdateScoreUI();
+    }
+
+    private void ResetLevel()
+    {
+        level = 1;
+        UpdateLevelUI();
+    }
+
+    private void ResetTimer()
+    {
+        timer = initialTime;
+        UpdateTimerUI();
     }
 
     private void SpawnNextCard()
     {
-        // filtra por nível e spawnChance>0
         var avail = circuitPrefabs
             .Where(e => level >= e.minLevel && e.spawnChance > 0)
             .ToList();
         if (avail.Count == 0)
             avail = circuitPrefabs.Where(e => e.spawnChance > 0).ToList();
 
-        // sorteio ponderado por spawnChance
         int total = avail.Sum(e => e.spawnChance);
         if (total == 0) total = avail.Count;
         int roll = Random.Range(0, total), cum = 0;
@@ -147,32 +165,22 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // instancia como filho de cardParent
         currentCard = Instantiate(currentEntry.prefab, cardParent);
         var cardRT = currentCard.GetComponent<RectTransform>();
 
-        // posiciona sobre receiveSlot → coords locais de cardParent
         Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(
-            null,
-            receiveSlot.position
-        );
+            null, receiveSlot.position);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            cardParent,
-            screenPoint,
-            null,
-            out Vector2 localPoint
-        );
+            cardParent, screenPoint, null, out Vector2 localPoint);
         cardRT.anchoredPosition = localPoint;
         cardRT.localScale = Vector3.one * zoomOutScale;
 
-        // injeta refs e inicializa
         currentCard.collectArea = collectArea;
         currentCard.stampTableArea = stampTableArea;
         currentCard.zoomOutScale = zoomOutScale;
         currentCard.defaultScale = defaultScale;
         currentCard.setup.Initialize();
 
-        // prepara stamps
         stampPanel.EnableAll();
         stampPanel.OnStamped += HandleStamped;
     }
@@ -231,6 +239,7 @@ public class GameManager : MonoBehaviour
     {
         gameActive = false;
         Debug.Log($"⏰ Tempo esgotado! Pontuação final: {score}");
+        onTimeUp?.Invoke();
         if (currentCard != null)
             Destroy(currentCard.gameObject);
     }
@@ -255,8 +264,6 @@ public class GameManager : MonoBehaviour
         int minutes = Mathf.FloorToInt(timer / 60);
         timerText.text = $"{minutes:00}:{seconds:00}:{centis:00}";
     }
-
-    // ─── Floating feedback ───
 
     private void ShowScoreFeedback(int delta)
     {
