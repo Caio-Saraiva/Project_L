@@ -427,13 +427,13 @@ MonoBehaviour:
   outputSource: {fileID: 771308838869233229}
   outputObject: {fileID: 6683267760077273534}
   gateSprites:
-  - {fileID: 21300000, guid: dec0a7a2abdc7324586025f6bff8bdee, type: 3}
-  - {fileID: 21300000, guid: 93cc928d27e0cb749b087730b619aafd, type: 3}
-  - {fileID: 21300000, guid: c90a3f527d071e34c9567a029b2c4725, type: 3}
-  - {fileID: 21300000, guid: 7c50bb7d2c7315240b21f9d3eb762955, type: 3}
-  - {fileID: 21300000, guid: 6ef07fbfd20e8664cae79e23b51359d3, type: 3}
-  - {fileID: 21300000, guid: 4d0407a46c72614488634e44d657f9a7, type: 3}
-  - {fileID: 21300000, guid: eb3eb34831c662c4c88c388f5376c668, type: 3}
+  - {fileID: 21300000, guid: ae2a3c62a8ab57e48bd2de339499a4f4, type: 3}
+  - {fileID: 21300000, guid: 3d34a863ec4b5e24fbe35525a8eae58c, type: 3}
+  - {fileID: 21300000, guid: bb781d6319437a74080fb6d5d2fd8ace, type: 3}
+  - {fileID: 21300000, guid: 363fd20ad258f3748bbeed3a25e2cb85, type: 3}
+  - {fileID: 21300000, guid: 06c91b675d062a44d82e6c288bf8f746, type: 3}
+  - {fileID: 21300000, guid: 9455b066de01f9a46a9658abdbb4fb8f, type: 3}
+  - {fileID: 21300000, guid: cedd50e0a3520c34c9dfd1dfff77106a, type: 3}
   allowAND: 1
   allowNAND: 1
   allowOR: 1

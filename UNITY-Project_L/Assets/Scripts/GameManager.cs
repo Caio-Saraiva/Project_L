@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
     private Coroutine scoreFeedbackRoutine;
     private Coroutine timeFeedbackRoutine;
 
-    void Start()
+    void OnEnable()
     {
         sendZone.OnCardDropped += HandleSendZone;
         StartGame();

@@ -334,14 +334,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2631197880927527013}
-  m_LocalRotation: {x: 0, y: 0, z: 0.043619405, w: 0.9990483}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6022455777762677549}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 5}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -399,13 +399,13 @@ MonoBehaviour:
   outputSource: {fileID: 7305861528816182090}
   outputObject: {fileID: 6683267760077273534}
   gateSprites:
-  - {fileID: 21300000, guid: dec0a7a2abdc7324586025f6bff8bdee, type: 3}
-  - {fileID: 21300000, guid: 93cc928d27e0cb749b087730b619aafd, type: 3}
-  - {fileID: 21300000, guid: c90a3f527d071e34c9567a029b2c4725, type: 3}
-  - {fileID: 21300000, guid: 7c50bb7d2c7315240b21f9d3eb762955, type: 3}
-  - {fileID: 21300000, guid: 6ef07fbfd20e8664cae79e23b51359d3, type: 3}
-  - {fileID: 21300000, guid: 4d0407a46c72614488634e44d657f9a7, type: 3}
-  - {fileID: 21300000, guid: eb3eb34831c662c4c88c388f5376c668, type: 3}
+  - {fileID: 21300000, guid: ae2a3c62a8ab57e48bd2de339499a4f4, type: 3}
+  - {fileID: 21300000, guid: 3d34a863ec4b5e24fbe35525a8eae58c, type: 3}
+  - {fileID: 21300000, guid: bb781d6319437a74080fb6d5d2fd8ace, type: 3}
+  - {fileID: 21300000, guid: 363fd20ad258f3748bbeed3a25e2cb85, type: 3}
+  - {fileID: 21300000, guid: 06c91b675d062a44d82e6c288bf8f746, type: 3}
+  - {fileID: 21300000, guid: 9455b066de01f9a46a9658abdbb4fb8f, type: 3}
+  - {fileID: 21300000, guid: cedd50e0a3520c34c9dfd1dfff77106a, type: 3}
   allowAND: 0
   allowNAND: 0
   allowOR: 0
@@ -719,7 +719,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 512, y: 512}
+  m_SizeDelta: {x: 500, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8247158817676108348
 GameObject:
@@ -849,7 +849,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 06c91b675d062a44d82e6c288bf8f746, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
