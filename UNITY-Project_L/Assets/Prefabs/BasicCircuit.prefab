@@ -417,12 +417,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   setup: {fileID: 4605963405189767419}
   stampOverlay: {fileID: 6137621222218871355}
-  bitZeroStampSprite: {fileID: 21300000, guid: 493e6a98b39916d4dbabccc17b703bba, type: 3}
-  bitOneStampSprite: {fileID: 21300000, guid: 2f2541adf8d33f64b80a49a0bc4cf8c5, type: 3}
-  boolFalseStampSprite: {fileID: 21300000, guid: 72fc5eb15f51365488d394307d3b55ab, type: 3}
-  boolTrueStampSprite: {fileID: 21300000, guid: 4ac580d82ff46c54285d553bd02d162f, type: 3}
-  signalLowStampSprite: {fileID: 21300000, guid: 99575c0084f2be04eabcdabed1838eb0, type: 3}
-  signalHighStampSprite: {fileID: 21300000, guid: 5137179cafaede04c8e7748a76de69f1, type: 3}
+  bitZeroStampSprite: {fileID: 21300000, guid: 30cee04a9b3aafa46a02cd0072aa490f, type: 3}
+  bitOneStampSprite: {fileID: 21300000, guid: 91a46b7ccde88cb48a610caab147b1a1, type: 3}
+  boolFalseStampSprite: {fileID: 21300000, guid: fd6e261522c25124e859b859c4459ba3, type: 3}
+  boolTrueStampSprite: {fileID: 21300000, guid: 462e8db68a59b2141b2407ef93ab983d, type: 3}
+  signalLowStampSprite: {fileID: 21300000, guid: a85171e98cd342c4382bec5750420d19, type: 3}
+  signalHighStampSprite: {fileID: 21300000, guid: 4a9bd9f4c67c08242b3d41cdae604a7e, type: 3}
+  stampPositiveColor: {r: 0.41037738, g: 1, b: 0.42890584, a: 1}
+  stampNegativeColor: {r: 1, g: 0.4009434, b: 0.4241618, a: 1}
   outputText: {fileID: 7072441088575685472}
   collectArea: {fileID: 0}
   stampTableArea: {fileID: 0}
@@ -463,6 +465,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 06c91b675d062a44d82e6c288bf8f746, type: 3}
   - {fileID: 21300000, guid: 9455b066de01f9a46a9658abdbb4fb8f, type: 3}
   - {fileID: 21300000, guid: cedd50e0a3520c34c9dfd1dfff77106a, type: 3}
+  gateSpriteColor: {r: 0.3773585, g: 0.35220125, b: 0.2830189, a: 1}
   allowAND: 1
   allowNAND: 1
   allowOR: 1
@@ -679,8 +682,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -267, y: -70}
-  m_SizeDelta: {x: 35, y: 25}
+  m_AnchoredPosition: {x: -259.5, y: -70}
+  m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5101113609168734576
 CanvasRenderer:
@@ -831,8 +834,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -20, y: -20}
+  m_AnchoredPosition: {x: 5, y: -5}
+  m_SizeDelta: {x: -30, y: -30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1415978474438441325
 CanvasRenderer:
@@ -889,7 +892,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 70
   m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1117,8 +1120,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -20, y: -20}
+  m_AnchoredPosition: {x: 5, y: -5}
+  m_SizeDelta: {x: -30, y: -30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8824808097527906063
 CanvasRenderer:
@@ -1175,7 +1178,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 70
   m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1406,8 +1409,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -267, y: 70}
-  m_SizeDelta: {x: 35, y: 25}
+  m_AnchoredPosition: {x: -259.5, y: 70}
+  m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7758670893410381331
 CanvasRenderer:
@@ -1707,7 +1710,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ae2a3c62a8ab57e48bd2de339499a4f4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3d34a863ec4b5e24fbe35525a8eae58c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

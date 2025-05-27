@@ -28,6 +28,7 @@ MonoBehaviour:
     - d9b33be370993d940aaaaffbf8cf23d1
     - f54d1bd14bd3ca042bd867b519fee8cc
     - 55599ada0ba6c7b46824abe6e21ad85a
+    - fc15cf0423cb1374993cae4660940651
     values:
     - iconNameOrGuid: 
       colorIndex: 10
@@ -82,6 +83,10 @@ MonoBehaviour:
       isIconRecursive: 0
       isColorRecursive: 0
     - iconNameOrGuid: Font Icon
+      colorIndex: 0
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: TextAsset Icon
       colorIndex: 0
       isIconRecursive: 0
       isColorRecursive: 0

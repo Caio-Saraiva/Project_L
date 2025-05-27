@@ -26,6 +26,12 @@ public class CircuitCardView : MonoBehaviour,
     public Sprite signalLowStampSprite;
     public Sprite signalHighStampSprite;
 
+    [Header("Stamp Colors")]
+    [Tooltip("Cor para valores 1, TRUE e HIGH")]
+    public Color stampPositiveColor = Color.green;
+    [Tooltip("Cor para valores 0, FALSE e LOW")]
+    public Color stampNegativeColor = Color.red;
+
     [Header("Output Text (apenas após carimbar)")]
     public TextMeshProUGUI outputText;
 
@@ -69,20 +75,29 @@ public class CircuitCardView : MonoBehaviour,
         switch (mode)
         {
             case LabelMode.Bit:
-                sprite = value == 0 ? bitZeroStampSprite : bitOneStampSprite;
+                sprite = (value == 0
+                    ? bitZeroStampSprite
+                    : bitOneStampSprite);
                 break;
             case LabelMode.Bool:
-                sprite = value == 0 ? boolFalseStampSprite : boolTrueStampSprite;
+                sprite = (value == 0
+                    ? boolFalseStampSprite
+                    : boolTrueStampSprite);
                 break;
             case LabelMode.Signal:
-                sprite = value == 0 ? signalLowStampSprite : signalHighStampSprite;
+                sprite = (value == 0
+                    ? signalLowStampSprite
+                    : signalHighStampSprite);
                 break;
         }
 
         if (stampOverlay != null && sprite != null)
         {
             stampOverlay.sprite = sprite;
-            stampOverlay.color = Color.white;
+            // aqui usamos as cores novas
+            stampOverlay.color = (value == 0
+                ? stampNegativeColor
+                : stampPositiveColor);
         }
 
         if (outputText != null)
@@ -97,7 +112,7 @@ public class CircuitCardView : MonoBehaviour,
             return;
         }
         bool correct = stampedMode.Value == setup.labelMode
-                       && stampedValue.Value == setup.expectedOutput;
+                    && stampedValue.Value == setup.expectedOutput;
         OnSent?.Invoke(correct);
     }
 

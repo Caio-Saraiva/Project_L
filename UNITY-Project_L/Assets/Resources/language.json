@@ -1,0 +1,18 @@
+{
+  "languages": [
+    {
+      "code": "pt",
+      "entries": [
+        { "key":"setting", "value":"CONFIGS" },
+        { "key":"play",    "value":"JOGAR" }
+      ]
+    },
+    {
+      "code": "en",
+      "entries": [
+        { "key":"setting", "value":"SETTINGS" },
+        { "key":"play",    "value":"PLAY" }
+      ]
+    }
+  ]
+}

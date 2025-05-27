@@ -15,6 +15,12 @@ public class GameManager : MonoBehaviour
     public RectTransform cardParent;
     public RectTransform receiveSlot;
 
+    [Header("Spawn Rotation Settings")]
+    [Tooltip("Rotação mínima em graus no eixo Z ao instanciar o card")]
+    public float spawnRotationMin = -5f;
+    [Tooltip("Rotação máxima em graus no eixo Z ao instanciar o card")]
+    public float spawnRotationMax = 5f;
+
     [Header("Drag Zones")]
     public RectTransform collectArea;
     public RectTransform stampTableArea;
@@ -24,7 +30,7 @@ public class GameManager : MonoBehaviour
     public StampPanelController stampPanel;
 
     [Header("Score Settings")]
-    public List<TextMeshProUGUI> scoreTexts;  // agora lista dinâmica
+    public List<TextMeshProUGUI> scoreTexts;
     [Tooltip("Pontos ganhos base por acerto")]
     public int pointsPerCorrect = 10;
     [Tooltip("Pontos perdidos por erro ou ausência de selo")]
@@ -38,7 +44,7 @@ public class GameManager : MonoBehaviour
     public float timeBonus = 5f;
 
     [Header("Level Display")]
-    public List<TextMeshProUGUI> levelTexts;  // agora lista dinâmica
+    public List<TextMeshProUGUI> levelTexts;
 
     [Header("Card Scale Settings")]
     [Range(0.1f, 2f)] public float zoomOutScale = 0.5f;
@@ -47,8 +53,6 @@ public class GameManager : MonoBehaviour
     [Header("Feedback Events")]
     public UnityEvent onCorrect;
     public UnityEvent onError;
-
-    [Header("Game Events")]
     [Tooltip("Invocado quando o tempo acabar")]
     public UnityEvent onTimeUp;
 
@@ -70,15 +74,15 @@ public class GameManager : MonoBehaviour
     // estado runtime
     private CircuitPrefabEntry currentEntry;
     private CircuitCardView currentCard;
-    private int score;
-    private int level;
+    public int score;
+    public int level;
     private float timer;
     private bool gameActive;
 
     private Coroutine scoreFeedbackRoutine;
     private Coroutine timeFeedbackRoutine;
 
-    void OnEnable()
+    void Start()
     {
         sendZone.OnCardDropped += HandleSendZone;
         StartGame();
@@ -106,14 +110,14 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        // limpar qualquer card anterior
+        // limpa qualquer card anterior
         if (currentCard != null)
         {
             Destroy(currentCard.gameObject);
             currentCard = null;
         }
 
-        // re-assina evento
+        // (re)assina evento
         sendZone.OnCardDropped -= HandleSendZone;
         sendZone.OnCardDropped += HandleSendZone;
 
@@ -145,12 +149,14 @@ public class GameManager : MonoBehaviour
 
     private void SpawnNextCard()
     {
+        // filtra por nível e spawnChance>0
         var avail = circuitPrefabs
             .Where(e => level >= e.minLevel && e.spawnChance > 0)
             .ToList();
         if (avail.Count == 0)
             avail = circuitPrefabs.Where(e => e.spawnChance > 0).ToList();
 
+        // sorteio ponderado por spawnChance
         int total = avail.Sum(e => e.spawnChance);
         if (total == 0) total = avail.Count;
         int roll = Random.Range(0, total), cum = 0;
@@ -165,22 +171,32 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // instancia como filho de cardParent
         currentCard = Instantiate(currentEntry.prefab, cardParent);
         var cardRT = currentCard.GetComponent<RectTransform>();
 
+        // aplica rotação aleatória no Z
+        float angleZ = Random.Range(spawnRotationMin, spawnRotationMax);
+        cardRT.localRotation = Quaternion.Euler(0f, 0f, angleZ);
+
+        // posiciona sobre receiveSlot → coords locais de cardParent
         Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(
             null, receiveSlot.position);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             cardParent, screenPoint, null, out Vector2 localPoint);
         cardRT.anchoredPosition = localPoint;
+
+        // escala
         cardRT.localScale = Vector3.one * zoomOutScale;
 
+        // injeta refs e inicializa
         currentCard.collectArea = collectArea;
         currentCard.stampTableArea = stampTableArea;
         currentCard.zoomOutScale = zoomOutScale;
         currentCard.defaultScale = defaultScale;
         currentCard.setup.Initialize();
 
+        // prepara stamps
         stampPanel.EnableAll();
         stampPanel.OnStamped += HandleStamped;
     }
