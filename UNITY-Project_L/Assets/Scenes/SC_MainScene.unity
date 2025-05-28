@@ -493,7 +493,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &61457324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4233,35 +4233,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -516
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -172
       objectReference: {fileID: 0}
     - target: {fileID: 8696409035904072520, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_Pivot.x
@@ -4969,35 +4969,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5444211980083366979, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -516
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5473764691664700012, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -172
       objectReference: {fileID: 0}
     - target: {fileID: 8696409035904072520, guid: c01fd7105200c8448a8e993540836eae, type: 3}
       propertyPath: m_Pivot.x
@@ -14708,7 +14708,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1520199391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19189,7 +19189,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ver-0.0.1
+  m_text: ver-0.8.5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e9e2d121fe81fa3468dfd1385db51df4, type: 2}
   m_sharedMaterial: {fileID: 105606798071254181, guid: e9e2d121fe81fa3468dfd1385db51df4, type: 2}
@@ -19198,8 +19198,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4291025919
-  m_fontColor: {r: 1, g: 0.85882354, b: 0.7647059, a: 1}
+    rgba: 348380159
+  m_fontColor: {r: 1, g: 0.85882354, b: 0.7647059, a: 0.078431375}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
