@@ -11,7 +11,10 @@
         { "key":"credits", "value":"CRÉDITOS" },
         { "key":"developer", "value":"Desenvolvedor do Jogo:\nCaio Saraiva" },
         { "key":"results", "value":"RESULTADOS" },
-        { "key":"done", "value":"PRONTO!" }
+        { "key":"done", "value":"PRONTO!" },
+        { "key":"tutorial1", "value":"O seu trabalho é responder corretamente o resultado de cada circuito lógico que vier da esquerda..." },
+        { "key":"tutorial2", "value":"...Para isso voce deve usar os carimbos a direita (BOOL, BITS ou SIGNAL)." },
+        { "key":"tutorial3", "value":"Mas lembre-se que cada circuito tem um tipo certo, como bits, booleano ou sinal." }
       ]
     },
     {
@@ -25,7 +28,10 @@
         { "key":"credits", "value":"CREDITS" },
         { "key":"developer", "value":"Game Developer:\nCaio Saraiva" },
         { "key":"results", "value":"RESULTS" },
-        { "key":"done", "value":"FINISH!" }
+        { "key":"done", "value":"FINISH!" },
+        { "key":"tutorial1", "value":"Your job is to correctly answer the result of each logic circuit that comes from the left..." },
+        { "key":"tutorial2", "value":"...For this you must use the stamps on the right (BOOL, BITS or SIGNAL)." },
+        { "key":"tutorial3", "value":"But remember that each circuit has a certain type, such as Bits, Boolean or Signal" }
       ]
     }
   ]
