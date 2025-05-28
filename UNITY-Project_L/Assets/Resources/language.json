@@ -3,15 +3,29 @@
     {
       "code": "pt",
       "entries": [
-        { "key":"setting", "value":"CONFIGS" },
-        { "key":"play",    "value":"JOGAR" }
+        { "key":"play", "value":"JOGAR" },
+        { "key":"leaderboard", "value":"PLACAR" },
+        { "key":"setting",    "value":"CONFIGS" },
+        { "key":"volume", "value":"Volume Geral" },
+        { "key":"back", "value":"VOLTAR" },
+        { "key":"credits", "value":"CRÉDITOS" },
+        { "key":"developer", "value":"Desenvolvedor do Jogo:\nCaio Saraiva" },
+        { "key":"results", "value":"RESULTADOS" },
+        { "key":"done", "value":"PRONTO!" }
       ]
     },
     {
       "code": "en",
       "entries": [
-        { "key":"setting", "value":"SETTINGS" },
-        { "key":"play",    "value":"PLAY" }
+        { "key":"play", "value":"PLAY" },
+        { "key":"leaderboard", "value":"LEADERBOARD" },
+        { "key":"setting",    "value":"SETTINGS" },
+        { "key":"volume", "value":"Master Sound" },
+        { "key":"back", "value":"BACK" },
+        { "key":"credits", "value":"CREDITS" },
+        { "key":"developer", "value":"Game Developer:\nCaio Saraiva" },
+        { "key":"results", "value":"RESULTS" },
+        { "key":"done", "value":"FINISH!" }
       ]
     }
   ]

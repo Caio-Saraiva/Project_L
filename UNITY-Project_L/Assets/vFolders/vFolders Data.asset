@@ -29,6 +29,7 @@ MonoBehaviour:
     - f54d1bd14bd3ca042bd867b519fee8cc
     - 55599ada0ba6c7b46824abe6e21ad85a
     - fc15cf0423cb1374993cae4660940651
+    - 1affdd877d9ca5a4e88c6caceb00380a
     values:
     - iconNameOrGuid: 
       colorIndex: 10
@@ -88,6 +89,10 @@ MonoBehaviour:
       isColorRecursive: 0
     - iconNameOrGuid: TextAsset Icon
       colorIndex: 0
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: AudioSource Icon
+      colorIndex: 3
       isIconRecursive: 0
       isColorRecursive: 0
   bookmarks: []

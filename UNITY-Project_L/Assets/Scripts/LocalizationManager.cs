@@ -43,12 +43,23 @@ public class LocalizationManager : MonoBehaviour
     [Tooltip("Associe cada TMP à chave correspondente no JSON")]
     public List<LocalizeEntry> entries = new List<LocalizeEntry>();
 
+    [Header("PlayerPrefs")]
+    [Tooltip("Chave usada para salvar/recuperar o idioma selecionado")]
+    public string prefsKey = "language";
+
+    [Tooltip("Idioma padrão se não houver nada salvo")]
+    public string defaultLanguage = "pt";
+
     // interna: idioma → (chave → valor)
     private Dictionary<string, Dictionary<string, string>> translations;
 
     void Awake()
     {
         LoadTranslations();
+
+        // lê idioma salvo ou usa padrão
+        string code = PlayerPrefs.GetString(prefsKey, defaultLanguage);
+        ApplyLanguage(code);
     }
 
     void LoadTranslations()
@@ -59,15 +70,14 @@ public class LocalizationManager : MonoBehaviour
             return;
         }
 
-        LocalizationFile file = JsonUtility.FromJson<LocalizationFile>(localizationJson.text);
-        translations = new Dictionary<string, Dictionary<string, string>>();
+        var file = JsonUtility.FromJson<LocalizationFile>(localizationJson.text);
+        translations = new Dictionary<string, Dictionary<string, string>>(file.languages.Count);
 
         foreach (var lang in file.languages)
         {
-            var dict = new Dictionary<string, string>();
+            var dict = new Dictionary<string, string>(lang.entries.Count);
             foreach (var e in lang.entries)
                 dict[e.key] = e.value;
-
             translations[lang.code] = dict;
         }
     }
@@ -76,27 +86,35 @@ public class LocalizationManager : MonoBehaviour
     {
         if (translations == null || !translations.ContainsKey(code))
         {
-            Debug.LogError($"LocalizationManager: idioma '{code}' não carregado.");
+            Debug.LogError($"LocalizationManager: idioma '{code}' não encontrado.");
             return;
         }
 
         var dict = translations[code];
         foreach (var le in entries)
         {
-            if (le.target != null && dict.ContainsKey(le.key))
-                le.target.text = dict[le.key];
+            if (le.target != null && dict.TryGetValue(le.key, out var txt))
+                le.target.text = txt;
         }
     }
 
-    /// <summary>Chama para trocar para Português e atualizar todos os textos.</summary>
+    /// <summary>
+    /// Muda para Português e salva a escolha.
+    /// </summary>
     public void ChangeAndApplyPt()
     {
+        PlayerPrefs.SetString(prefsKey, "pt");
+        PlayerPrefs.Save();
         ApplyLanguage("pt");
     }
 
-    /// <summary>Chama para trocar para Inglês e atualizar todos os textos.</summary>
+    /// <summary>
+    /// Muda para Inglês e salva a escolha.
+    /// </summary>
     public void ChangeAndApplyEn()
     {
+        PlayerPrefs.SetString(prefsKey, "en");
+        PlayerPrefs.Save();
         ApplyLanguage("en");
     }
 }
