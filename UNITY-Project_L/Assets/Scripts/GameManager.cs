@@ -218,14 +218,14 @@ public class GameManager : MonoBehaviour
 
         if (!gaveStamp || !correctMode)
         {
-            Debug.Log("❌ Resposta errada (modo ou ausência de selo).");
+            Debug.Log("Resposta errada (modo ou ausência de selo).");
             score -= pointsPerWrong;
             onError?.Invoke();
             ShowScoreFeedback(-pointsPerWrong);
         }
         else if (!correctValue)
         {
-            Debug.Log($"❌ Valor incorreto! Esperado {card.setup.expectedOutput}.");
+            Debug.Log($"Valor incorreto! Esperado {card.setup.expectedOutput}.");
             score -= pointsPerWrong;
             onError?.Invoke();
             ShowScoreFeedback(-pointsPerWrong);
@@ -233,7 +233,7 @@ public class GameManager : MonoBehaviour
         else
         {
             int gained = Mathf.RoundToInt(pointsPerCorrect * currentEntry.scoreMultiplier);
-            Debug.Log($"🎉 Correto! +{gained} pontos.");
+            Debug.Log($"Correto! +{gained} pontos.");
             score += gained;
             timer += timeBonus;
             level += 1;
@@ -254,7 +254,7 @@ public class GameManager : MonoBehaviour
     private void EndGame()
     {
         gameActive = false;
-        Debug.Log($"⏰ Tempo esgotado! Pontuação final: {score}");
+        Debug.Log($"Tempo esgotado! Pontuação final: {score}");
         onTimeUp?.Invoke();
         if (currentCard != null)
             Destroy(currentCard.gameObject);

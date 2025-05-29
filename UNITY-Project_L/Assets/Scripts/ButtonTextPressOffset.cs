@@ -1,8 +1,10 @@
+// ButtonTextPressOffset.cs
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using TMPro;
 
-[RequireComponent(typeof(UnityEngine.UI.Button))]
+[RequireComponent(typeof(Button))]
 public class ButtonTextPressOffset : MonoBehaviour,
     IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
@@ -12,23 +14,26 @@ public class ButtonTextPressOffset : MonoBehaviour,
 
     [Header("Offset de Pressionado")]
     [Tooltip("Quanto o texto deve se deslocar ao pressionar o botão")]
-    public Vector2 pressedOffset = new Vector2(0, -20);
+    public Vector2 pressedOffset = new Vector2(0, -2);
 
-    Vector2 _originalPos;
+    private Vector2 _originalPos;
 
     void Awake()
     {
-        // Se não especificado, tenta encontrar o TMP na hierarquia
         if (textToMove == null)
         {
             var tmp = GetComponentInChildren<TextMeshProUGUI>();
             if (tmp != null)
                 textToMove = tmp.rectTransform;
         }
-
-        // Salva a posição original para restaurar depois
         if (textToMove != null)
             _originalPos = textToMove.anchoredPosition;
+    }
+
+    void OnEnable()
+    {
+        if (textToMove != null)
+            textToMove.anchoredPosition = _originalPos;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -45,7 +50,6 @@ public class ButtonTextPressOffset : MonoBehaviour,
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // Se o ponteiro sair do botão sem soltar, também restaura
         if (textToMove != null)
             textToMove.anchoredPosition = _originalPos;
     }
