@@ -17,7 +17,8 @@
         { "key":"tutorial3", "value":"Mas lembre-se que cada circuito tem um tipo certo, como bits, booleano ou sinal." },
         { "key":"tutorial4", "value":"Lembre-se de que só da pra carimbar o circuito uma unica vez." },
         { "key":"tutorial5", "value":"...Depois de carimbar, basta arrastar o cartão para a caixa amarela de envio." },
-        { "key":"tip", "value":"Contêm um livro na parte de baixo do jogo para ajudar caso necessário." }
+        { "key":"tip", "value":"Contêm um livro na parte de baixo do jogo para ajudar caso necessário." },
+        { "key":"hold", "value":"Segure o botão para voltar ao HOME"}
       ]
     },
     {
@@ -37,7 +38,8 @@
         { "key":"tutorial3", "value":"But remember that each circuit has a certain type, such as Bits, Boolean or Signal" },
         { "key":"tutorial4", "value":"Remember that you can only stamp the circuit once." },
         { "key":"tutorial5", "value":"...After stamping, simply drag the card into the yellow shipping box." },
-        { "key":"tip", "value":"There is a book at the bottom of the game to help if needed." }
+        { "key":"tip", "value":"There is a book at the bottom of the game to help if needed." },
+        { "key":"hold", "value":"Hold the button to go back HOME"}
       ]
     }
   ]
