@@ -12,7 +12,7 @@ public class UIHoverFade : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     Coroutine fadeCoroutine;
 
-    void Start()
+    void OnEnable()
     {
         if (targetGroup == null)
         {
