@@ -23,6 +23,19 @@
         width: 100%; height: 100%;
         cursor: none !important;
       }
+      /* Estilo para a mensagem de erro caso não haja WebGL */
+      #no-webgl-warning {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        padding: 20px;
+        font-family: sans-serif;
+        text-align: center;
+        border-radius: 4px;
+      }
     </style>
 
     <!-- força rodar em background mesmo com aba oculta -->
@@ -44,72 +57,107 @@
       <div id="unity-warning"> </div>
     </div>
 
+    <!-- Container para exibir mensagem quando WebGL não estiver disponível -->
+    <div id="no-webgl-warning" style="display: none;">
+      <h2>WebGL não suportado ou aceleração de hardware desabilitada</h2>
+      <p>Seu navegador não conseguiu criar um contexto WebGL. Para jogar “LOGIKA”, você precisa de um navegador com WebGL habilitado ou usar uma implementação em software (por exemplo, SwiftShader).</p>
+      <p>Confira se a aceleração de hardware está ativada nas configurações do navegador, ou use um navegador compatível.</p>
+    </div>
+
     <script>
+      // ---------- Função para checar suporte a WebGL ----------
+      function isWebGLAvailable() {
+        try {
+          var canvasTest = document.createElement("canvas");
+          return !!(
+            window.WebGLRenderingContext &&
+            (canvasTest.getContext("webgl") || canvasTest.getContext("experimental-webgl"))
+          );
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // ---------- Ao carregar a página ----------
       window.addEventListener("load", function () {
+        // Registro de Service Worker (se suportado)
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.register("ServiceWorker.js");
         }
+
+        // Se WebGL não estiver disponível, exibe aviso e interrompe inicialização da Unity
+        if (!isWebGLAvailable()) {
+          document.getElementById("unity-container").style.display = "none";
+          document.getElementById("no-webgl-warning").style.display = "block";
+          return; // não prossegue para carregar o loader da Unity
+        }
+
+        // Se chegou até aqui, WebGL está OK – inicia carregamento normal da Unity
+        startUnity();
       });
 
-      var canvas           = document.querySelector("#unity-canvas");
-      var loadingBar       = document.querySelector("#unity-loading-bar");
-      var progressBarFull  = document.querySelector("#unity-progress-bar-full");
-      var warningBanner    = document.querySelector("#unity-warning");
+      // ---------- Função que contém todo o fluxo de criação da instância Unity ----------
+      function startUnity() {
+        var canvas           = document.querySelector("#unity-canvas");
+        var loadingBar       = document.querySelector("#unity-loading-bar");
+        var progressBarFull  = document.querySelector("#unity-progress-bar-full");
+        var warningBanner    = document.querySelector("#unity-warning");
 
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? "block" : "none";
+        function unityShowBanner(msg, type) {
+          function updateBannerVisibility() {
+            warningBanner.style.display = warningBanner.children.length ? "block" : "none";
+          }
+          var div = document.createElement("div");
+          div.innerHTML = msg;
+          warningBanner.appendChild(div);
+          if (type === "error") div.style = "background: red; padding: 10px;";
+          else {
+            if (type === "warning") div.style = "background: yellow; padding: 10px;";
+            setTimeout(function () {
+              warningBanner.removeChild(div);
+              updateBannerVisibility();
+            }, 5000);
+          }
+          updateBannerVisibility();
         }
-        var div = document.createElement("div");
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type === "error") div.style = "background: red; padding: 10px;";
-        else {
-          if (type === "warning") div.style = "background: yellow; padding: 10px;";
-          setTimeout(function () {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
+
+        var buildVersion = "__VERSION__";  // placeholder trocado pelo PostProcessBuild
+        var buildUrl     = "Build";
+        var loaderUrl    = buildUrl + "/LOGIKA.loader.js?v=" + buildVersion;
+
+        var config = {
+          dataUrl:       buildUrl + "/LOGIKA.data?v=" + buildVersion,
+          frameworkUrl:  buildUrl + "/LOGIKA.framework.js?v=" + buildVersion,
+          codeUrl:       buildUrl + "/LOGIKA.wasm?v=" + buildVersion,
+          streamingAssetsUrl: "StreamingAssets",
+          companyName:   "CheetosStudio",
+          productName:   "LOGIKA",
+          productVersion: buildVersion,
+          showBanner:    unityShowBanner
+        };
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          var meta = document.createElement("meta");
+          meta.name = "viewport";
+          meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+          document.head.appendChild(meta);
         }
-        updateBannerVisibility();
+
+        loadingBar.style.display = "block";
+
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = function () {
+          createUnityInstance(canvas, config, function (progress) {
+            progressBarFull.style.width = 100 * progress + "%";
+          }).then(function (unityInstance) {
+            loadingBar.style.display = "none";
+          }).catch(function (message) {
+            alert(message);
+          });
+        };
+        document.body.appendChild(script);
       }
-
-      var buildVersion = "__VERSION__";  // placeholder trocado pelo PostProcessBuild
-      var buildUrl     = "Build";
-      var loaderUrl    = buildUrl + "/LOGIKA.loader.js?v=" + buildVersion;
-
-      var config = {
-        dataUrl:       buildUrl + "/LOGIKA.data?v=" + buildVersion,
-        frameworkUrl:  buildUrl + "/LOGIKA.framework.js?v=" + buildVersion,
-        codeUrl:       buildUrl + "/LOGIKA.wasm?v=" + buildVersion,
-        streamingAssetsUrl: "StreamingAssets",
-        companyName:   "CheetosStudio",
-        productName:   "LOGIKA",
-        productVersion: buildVersion,
-        showBanner:    unityShowBanner
-      };
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        var meta = document.createElement("meta");
-        meta.name = "viewport";
-        meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
-        document.head.appendChild(meta);
-      }
-
-      loadingBar.style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = function () {
-        createUnityInstance(canvas, config, function (progress) {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then(function (unityInstance) {
-          loadingBar.style.display = "none";
-        }).catch(function (message) {
-          alert(message);
-        });
-      };
-      document.body.appendChild(script);
     </script>
   </body>
 </html>
