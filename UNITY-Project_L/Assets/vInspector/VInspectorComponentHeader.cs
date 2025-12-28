@@ -72,10 +72,13 @@ namespace VInspector
                 {
                     if (component is not MonoBehaviour) return;
                     if (!VInspectorMenu.minimalModeEnabled) return;
+                    if (imguiContainer.onGUIHandler.Method.DeclaringType.FullName.StartsWith("Sisus")) return;
+
 
                     var name = component.GetType().Name.Decamelcase();
 
                     var rect = headerRect.AddHeightFromMid(-2).SetWidth(60).MoveX(name.GetLabelWidth(fontSize: 12, isBold: true) + 60 - 3);
+                    rect = rect.MoveX(-2);
 
                     rect.xMax = rect.xMax.Min(buttonMaskRect.x).Max(rect.xMin);
 

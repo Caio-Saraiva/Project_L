@@ -19,6 +19,15 @@ using static VFolders.VFolders;
 using static VFolders.VFoldersData;
 using static VFolders.VFoldersCache;
 
+#if UNITY_6000_3_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
+#elif UNITY_6000_2_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#endif
+
+
 
 
 namespace VFolders
@@ -32,15 +41,16 @@ namespace VFolders
 
             var isRowHovered = fullRowRect.IsHovered();
 
-            var isListArea = rowRect.x == 14;
-
             var isFolder = AssetDatabase.IsValidFolder(guid.ToPath());
             var isAsset = !isFolder && !guid.IsNullOrEmpty();
+            var isSubasset = isAsset && typeof(AssetDatabase).InvokeMethod<bool>("IsSubAsset", instanceId);
             var isFavorite = !isFolder && !isAsset && rowRect.x != 16;
 
             var isFavoritesRoot = rowRect.x == 16 && !isFolder && rowRect.y == 0;
             var isAssetsRoot = rowRect.x == 16 && isFolder && guid.ToPath() == "Assets";
             var isPackagesRoot = rowRect.x == 16 && !isFavoritesRoot && !isAssetsRoot && guid.IsNullOrEmpty();
+
+            var isListArea = isTwoColumns && (rowRect.x == 14 || !isFolder);
 
             var useMinimalMode = VFoldersMenu.minimalModeEnabled && !isListArea;
             var useBackgroundColors = (VFoldersMenu.backgroundColorsEnabled || useMinimalMode) && !isListArea;
@@ -77,8 +87,8 @@ namespace VFolders
                     var rowIndex = ((rowRect.y + offest) / 16).ToInt();
 
 
-                    if (rowIndex < 0 || rowIndex >= rows.Count) return;
                     if (rows == null) return;
+                    if (rowIndex < 0 || rowIndex >= rows.Count) return;
 
                     treeItem = rows[rowIndex];
 
@@ -88,7 +98,7 @@ namespace VFolders
                     if (treeItem != null) return;
                     if (isFavorite || isFavoritesRoot) return;
 
-                    treeItem = treeViewController?.InvokeMethod<TreeViewItem>("FindItem", instanceId);
+                    treeItem = treeViewController?.InvokeMethod<TreeViewItem>("FindItem", instanceId.ToIdType());
 
                 }
 
@@ -163,7 +173,7 @@ namespace VFolders
 
                 var rowHasCustomIcon = !isFolder ? false
                                                  : useBackgroundColors ? folderInfo.hasIcon
-                                                                  : folderInfo.hasIcon || folderInfo.hasColor;
+                                                                       : folderInfo.hasIcon || folderInfo.hasColor;
                 var rowHasIcon = !useMinimalMode ? true
                                                  : rowHasCustomIcon || isAsset || isFavorite || isRowBeingRenamed;
 
@@ -178,7 +188,7 @@ namespace VFolders
                 var makeTriangleBrighter = rowHasColor && isDarkTheme;
                 var makeNameBrighter = rowHasColor && isDarkTheme;
                 var makeIconBrighter = rowHasColor && isFolder;
-
+                var makeExtraSpaceForVCSIcons = isVersionControlEnabled;
 
 
                 var defaultBackground = isListArea ? Greyscale(isDarkTheme ? .2f : .75f)
@@ -197,7 +207,7 @@ namespace VFolders
 
                     var name = isListArea ? guid.ToPath().GetFilename() : treeItem != null ? treeItem.displayName : "Favorites";
 
-                    var nameRect = rowRect.SetWidth(name.GetLabelWidth() + 3).MoveX(16).MoveX(isListArea ? 3 : 0);
+                    var nameRect = rowRect.SetWidth(name.GetLabelWidth(isBold: isFavorite || isAssetsRoot || isPackagesRoot) + 6).MoveX(16).MoveX(isListArea ? 3 : 0);
 
                     nameRect.Draw(defaultBackground);
 
@@ -207,6 +217,9 @@ namespace VFolders
                     if (!hideDefaultIcon) return;
 
                     var iconRect = rowRect.SetWidth(16).MoveX(isListArea ? 3 : 0);
+
+                    if (makeExtraSpaceForVCSIcons)
+                        iconRect = iconRect.MoveX(8);
 
 
                     if (isListArea)
@@ -251,7 +264,7 @@ namespace VFolders
                     var colorRect = rowRect.AddWidthFromRight(30).AddWidth(16);
 
                     if (folderInfo.hasColorByRecursion)
-                        colorRect = colorRect.AddWidthFromRight(folderInfo.maxColorRecursionDepth * 14);
+                        colorRect = colorRect.AddWidthFromRight((folderInfo.maxColorRecursionDepth + (isSubasset ? 1 : 0)) * 14);
 
                     if (!isRowSelected && !folderInfo.hasColorByRecursion)
                         colorRect = colorRect.AddHeightFromMid(EditorGUIUtility.pixelsPerPoint >= 2 ? -.5f : -1);
@@ -323,6 +336,9 @@ namespace VFolders
                     if (makeNameBrighter)
                         nameRect = nameRect.MoveX(-2).MoveY(-.5f);
 
+                    if (makeExtraSpaceForVCSIcons)
+                        nameRect = nameRect.MoveX(16);
+
 
 
                     var styleName = makeNameBrighter ? "WhiteLabel" : "TV Line";
@@ -355,7 +371,11 @@ namespace VFolders
 
                     var iconRect = rowRect.SetWidth(16).MoveX(isListArea ? 3 : 0);
 
-                    var icon = isAsset ? AssetDatabase.GetCachedIcon(guid.ToPath())
+                    if (makeExtraSpaceForVCSIcons)
+                        iconRect = iconRect.MoveX(8);
+
+
+                    var icon = isAsset ? treeItem?.GetMemberValue<Texture2D>("icon") ?? AssetDatabase.GetCachedIcon(guid.ToPath())
                                        : makeIconBrighter ? EditorIcons.GetIcon(folderInfo.folderState.isEmpty ? "FolderEmpty On Icon" : "Folder On Icon")
                                                           : EditorIcons.GetIcon(folderInfo.folderState.isEmpty ? "FolderEmpty Icon" : "Folder Icon");
 
@@ -390,8 +410,21 @@ namespace VFolders
 
                     iconRect = iconRect.SetWidth(iconRect.height / icon.height * icon.width);
 
+                    if (makeExtraSpaceForVCSIcons)
+                        iconRect = iconRect.MoveX(7);
+
 
                     GUI.DrawTexture(iconRect, icon);
+
+                }
+                void versionControlOverlay()
+                {
+                    if (!isFolder) return;
+                    if (!hideDefaultIcon && !rowHasColor) return;
+
+                    if (!isVersionControlEnabled) return;
+
+                    typeof(Editor).Assembly.GetType("UnityEditorInternal.VersionControl.ProjectHooks").InvokeMethod("HandleVersionControlOverlays", guid, rowRect.MoveX(3));
 
                 }
 
@@ -578,6 +611,7 @@ namespace VFolders
                 triangle();
                 defaultIcon();
                 customIcon();
+                versionControlOverlay();
                 name();
 
                 hierarchyLines();
@@ -640,15 +674,22 @@ namespace VFolders
                     if (!curEvent.isMouseUp) return;
 
                     var selectedGuids = isListArea
-                                               ?
-                                               Selection.objects.Where(r => r is DefaultAsset).Select(r => r.GetPath().ToGuid())
-                                               :
+                                        ?
+                                        Selection.objects.Where(r => r is DefaultAsset).Select(r => r.GetPath().ToGuid())
+                                        :
 #if UNITY_2021_1_OR_NEWER
-                                               treeViewController.GetFieldValue("m_CachedSelection").GetFieldValue<List<int>>("m_List")
+                                        treeViewController.GetFieldValue("m_CachedSelection").GetIdList("m_List")
 #else
-                                               treeViewController?.GetMemberValue("state").GetMemberValue<List<int>>("selectedIDs")
+                                        treeViewController?.GetMemberValue("state").GetMemberValue<List<int>>("selectedIDs")
 #endif
+
+
+#if UNITY_6000_3_OR_NEWER
+                                 .Select(id => treeViewController.InvokeMethod("FindItem", (EntityId)id))
+#else
                                  .Select(id => treeViewController.InvokeMethod("FindItem", id))
+#endif
+
                                  .Where(r => r?.GetType().Name == "FolderTreeItem")
                                  .Select(r => r.GetPropertyValue<string>("Guid"))
                                  .Where(r => r != null);
@@ -733,7 +774,13 @@ namespace VFolders
                     if (!isFolder) return;
                     if (!folderInfo.hasColor) return;
 
-                    cellRect.SetHeight(cellRect.width).Resize(4).Draw(EditorGUIUtility.isProSkin ? Greyscale(.2f) : Greyscale(.75f));
+                    var maskRect = cellRect.SetHeight(cellRect.width).Resize(4);
+
+                    // if (isVersionControlEnabled)
+                    // maskRect = maskRect.SetHeightFromBottom(maskRect.height * 2 / 3);
+
+
+                    maskRect.Draw(EditorGUIUtility.isProSkin ? Greyscale(.2f) : Greyscale(.75f));
 
                 }
                 void icon()
@@ -744,13 +791,24 @@ namespace VFolders
                     DrawBigFolderIcon(cellRect, folderInfo);
 
                 }
+                void versionControlOverlay()
+                {
+                    if (!isFolder) return;
+                    if (!folderInfo.hasColor) return;
+
+                    if (!isVersionControlEnabled) return;
+
+                    typeof(Editor).Assembly.GetType("UnityEditorInternal.VersionControl.ProjectHooks").InvokeMethod("HandleVersionControlOverlays", guid, cellRect);
+
+                }
                 void twoLineName()
                 {
                     if (namesDrawnForGuids.Contains(guid)) return; // disables two-line names on subassets
                     if (!VFoldersMenu.twoLineNamesEnabled) return;
 
 
-                    var isSelected = listArea_dragSelectionList.Any() ? listArea_dragSelectionList.Contains(instanceId) : Selection.instanceIDs.Contains(instanceId);
+                    var isSelected = listArea_dragSelectionList.Any() ? listArea_dragSelectionList.Contains(instanceId)
+                                                                      : _Selection_instanceIDs.Contains(instanceId);
 
                     var isCellBeingRenamed = isSelected && renamingCell;
 
@@ -996,8 +1054,10 @@ namespace VFolders
 
                 }
 
+
                 hideIcon();
                 icon();
+                versionControlOverlay();
                 twoLineName();
                 hoverHighlight();
 
@@ -1128,7 +1188,7 @@ namespace VFolders
 
             var treeViewState = treeViewController?.GetPropertyValue<TreeViewState>("state");
 
-            expandedIds = treeViewState?.expandedIDs ?? new List<int>();
+            expandedIds = treeViewState?.expandedIDs?.ToInts() ?? new();
 
 
 
@@ -1157,9 +1217,13 @@ namespace VFolders
 
 
 
-            listArea_dragSelectionList = listArea?.GetMemberValue("m_LocalAssets")?.GetMemberValue<List<int>>("m_DragSelection") ?? new();
-            treeView_dragSelectionList = treeViewController?.GetFieldValue("m_DragSelection")?.GetFieldValue<List<int>>("m_List") ?? new();
-            treeView_normalSelectionList = isTwoColumns ? treeViewController?.GetFieldValue("m_CachedSelection")?.GetFieldValue<List<int>>("m_List") ?? new() : null;
+            listArea_dragSelectionList = listArea?.GetMemberValue("m_LocalAssets")?.GetIdList("m_DragSelection") ?? new();
+            treeView_dragSelectionList = treeViewController?.GetFieldValue("m_DragSelection")?.GetIdList("m_List") ?? new();
+            treeView_normalSelectionList = isTwoColumns ? treeViewController?.GetFieldValue("m_CachedSelection")?.GetIdList("m_List") ?? new() : null;
+
+
+
+            // isVersionControlEnabled = typeof(Editor).Assembly.GetType("UnityEditor.AssetsTreeViewGUI").GetMemberValue<bool>("s_VCEnabled");
 
 
             // only treeView_normalSelectionList must be updated in repaint, the rest can be moved to UpdateState_Layout
@@ -1194,6 +1258,7 @@ namespace VFolders
         List<int> treeView_dragSelectionList = new();
         List<int> treeView_normalSelectionList = new();
 
+        bool isVersionControlEnabled;
 
 
 

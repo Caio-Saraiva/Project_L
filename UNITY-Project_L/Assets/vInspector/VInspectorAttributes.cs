@@ -136,4 +136,8 @@ namespace VInspector
 
 
 
+
+    public class TagAttribute : PropertyAttribute { }
+    public class LayerAttribute : PropertyAttribute { }
+
 }

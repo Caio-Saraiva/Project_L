@@ -34,15 +34,21 @@ namespace VInspector
                 {
                     if (isSceneGameObject && _obj == null)
                     {
-                        VInspector.unloadedSceneBookmarksGuids.Add(globalId.guid);
+                        if (!failedToLoadSceneObject) // to prevent continuous GlobalID.GetObjects() calls if object is deleted
+                            VInspector.unloadedSceneBookmarks_sceneGuids.Add(globalId.guid);
+
                         return null;
                     }
 
                     return _obj ??= globalId.GetObject();
 
                 }
+
             }
             public Object _obj;
+
+            [System.NonSerialized]
+            public bool failedToLoadSceneObject;
 
 
 

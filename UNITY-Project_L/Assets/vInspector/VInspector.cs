@@ -307,9 +307,6 @@ namespace VInspector
             if (EditorWindow.mouseOverWindow is not EditorWindow hoveredWindow) return;
             if (!hoveredWindow) return;
             if (hoveredWindow.GetType() != t_InspectorWindow && hoveredWindow.GetType() != t_PropertyEditor) return;
-            if (!curEvent.isKeyDown) return;
-            if (curEvent.keyCode == KeyCode.None) return;
-
 
             void expandOrCollapseHovered()
             {
@@ -464,7 +461,27 @@ namespace VInspector
                 curEvent.Use();
 
             }
+            void moveBack()
+            {
+                if (!curEvent.isMouseDown) return;
+                if (curEvent.mouseButton != 3) return;
+                if (hoveredWindow.GetType() != t_InspectorWindow) return;
 
+                if (!VInspectorSelectionHistory.instance.prevStates.Any()) return;
+
+                VInspectorSelectionHistory.instance.MoveBack();
+
+            }
+            void moveForward()
+            {
+                if (!curEvent.isMouseDown) return;
+                if (curEvent.mouseButton != 4) return;
+                if (hoveredWindow.GetType() != t_InspectorWindow) return;
+
+                if (!VInspectorSelectionHistory.instance.nextStates.Any()) return;
+
+                VInspectorSelectionHistory.instance.MoveForward();
+            }
 
             expandOrCollapseHovered();
             expandOrCollapseAll();
@@ -473,6 +490,8 @@ namespace VInspector
             delete();
 
             clearCopiedDatas();
+            moveBack();
+            moveForward();
 
         }
 
@@ -1203,8 +1222,8 @@ namespace VInspector
             if (!data) return;
 
 
-            var scenesToLoadFor = unloadedSceneBookmarksGuids.Select(r => EditorSceneManager.GetSceneByPath(r.ToPath()))
-                                                             .Where(r => r.isLoaded);
+            var scenesToLoadFor = unloadedSceneBookmarks_sceneGuids.Select(r => EditorSceneManager.GetSceneByPath(r.ToPath()))
+                                                                   .Where(r => r.isLoaded);
             if (!scenesToLoadFor.Any()) return;
 
 
@@ -1217,11 +1236,14 @@ namespace VInspector
                                                                                                          : r.globalId.UnpackForPrefab()).GetObjects();
 
                 for (int i = 0; i < bookmarksFromThisScene.Count; i++)
-                    bookmarksFromThisScene[i]._obj = objectsForTheseBookmarks[i];
+                    if (objectsForTheseBookmarks[i])
+                        bookmarksFromThisScene[i]._obj = objectsForTheseBookmarks[i];
+                    else
+                        bookmarksFromThisScene[i].failedToLoadSceneObject = true;
 
             }
 
-            unloadedSceneBookmarksGuids.Clear();
+            unloadedSceneBookmarks_sceneGuids.Clear();
 
 
             foreach (var inspector in allInspectors)
@@ -1229,7 +1251,7 @@ namespace VInspector
 
         }
 
-        public static HashSet<string> unloadedSceneBookmarksGuids = new();
+        public static HashSet<string> unloadedSceneBookmarks_sceneGuids = new();
 
 
 
@@ -1515,7 +1537,7 @@ namespace VInspector
             loadData();
             loadDataDelayed();
 
-            EditorApplication.delayCall += () => removeDeletedBookmarks();
+            EditorApplication.delayCall += () => EditorApplication.delayCall += () => removeDeletedBookmarks();
 
         }
 
@@ -1541,7 +1563,7 @@ namespace VInspector
 
 
 
-        const string version = "2.0.13";
+        const string version = "2.0.17";
 
 
     }

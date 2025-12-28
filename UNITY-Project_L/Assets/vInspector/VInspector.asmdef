@@ -9,6 +9,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.terrainphysics",
+            "expression": "",
+            "define": "TERRAIN_PACKAGE_ENABLED"
+        }
+    ],
     "noEngineReferences": false
 }

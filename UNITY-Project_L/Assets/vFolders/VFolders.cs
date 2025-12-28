@@ -18,6 +18,15 @@ using static VFolders.Libs.VGUI;
 using static VFolders.VFoldersData;
 using static VFolders.VFoldersCache;
 
+#if UNITY_6000_3_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
+#elif UNITY_6000_2_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#endif
+
+
 
 
 namespace VFolders
@@ -30,6 +39,9 @@ namespace VFolders
             var navbarHeight = 26;
 
             var isOneColumn = window.GetMemberValue<int>("m_ViewMode") == 0;
+
+            var prevSelection = Selection.objects;
+
 
             void navbarGui()
             {
@@ -91,13 +103,13 @@ namespace VFolders
                 var shadowLength = 30;
                 var shadowPos = 21;
                 var shadowGreyscale = isDarkTheme ? .1f : .28f;
-                var shadowAlpha = .35f;
+                var shadowAlpha = isDarkTheme ? .35f : .15f;
 
                 var minScrollPos = 10;
                 var maxScrollPos = 20;
 
 
-                var scrollPos = window.GetMemberValue(isOneColumn ? "m_AssetTree" : "m_FolderTree").GetMemberValue<UnityEditor.IMGUI.Controls.TreeViewState>("state").scrollPos.y;
+                var scrollPos = window.GetMemberValue(isOneColumn ? "m_AssetTree" : "m_FolderTree").GetMemberValue<TreeViewState>("state").scrollPos.y;
 
                 var opacity = ((scrollPos - minScrollPos) / (maxScrollPos - minScrollPos)).Clamp01();
 
@@ -170,6 +182,21 @@ namespace VFolders
                     window.position.SetPos(rectX, clipAtY - 1).SetSize(12321, 1).Draw(Greyscale(.175f)); // line under breadcrumbs
 
             }
+            // void preventSelectionChangeInOtherBrowsers()
+            // {
+            //     if (!UnityEditorInternal.InternalEditorUtility.isApplicationActive) return; // fixes https://discord.com/channels/1120291189707509840/1121124228507381791/1418551070933913611
+            //     if (Selection.objects.SequenceEqual(prevSelection)) return;
+
+
+            //     allBrowsers.ForEach(r => r?.SetMemberValue("m_InternalSelectionChange", true));
+
+            //     EditorApplication.delayCall += () =>
+            //         allBrowsers.ForEach(r => r?.SetMemberValue("m_InternalSelectionChange", false));
+
+            // }
+
+
+
 
 
 
@@ -201,7 +228,7 @@ namespace VFolders
 
             var curOnGUIMethod = window.GetMemberValue("m_Parent").GetMemberValue<System.Delegate>("m_OnGUI").Method;
 
-            var isWrapped = curOnGUIMethod == mi_WrappedBrowserOnGUI;
+            var isWrapped = curOnGUIMethod == mi_WrappedGUI;
             var shouldBeWrapped = VFoldersMenu.navigationBarEnabled && !(isVTabsActive && isLocked) && curOnGUIMethod != mi_VFavorites_WrappedOnGUI;
 
             void wrap()
@@ -385,7 +412,7 @@ namespace VFolders
         }
         static void ItemGUI_2022_1_and_newer(int instanceId, Rect itemRect)
         {
-            var guid = AssetDatabase.GetAssetPath(instanceId).ToGuid();
+            var guid = _AssetDatabase_GetAssetPath(instanceId).ToGuid();
 
             ItemGUI(itemRect, guid, instanceId);
 
@@ -823,8 +850,6 @@ namespace VFolders
 
         static void Shortcuts() // globalEventHandler 
         {
-            if (!curEvent.isKeyDown) return;
-            if (curEvent.keyCode == KeyCode.None) return;
             if (EditorWindow.mouseOverWindow is not EditorWindow hoveredWindow) return;
             if (hoveredWindow.GetType() != t_ProjectBrowser) return;
 
@@ -847,7 +872,7 @@ namespace VFolders
                 controllers_byWindow[hoveredWindow].ToggleExpanded(lastHoveredTreeItem);
 
             }
-            void collapseEverything()
+            void collapseAll()
             {
                 if (!curEvent.isKeyDown) return;
                 if (curEvent.keyCode != KeyCode.E) return;
@@ -860,7 +885,7 @@ namespace VFolders
                 controllers_byWindow[hoveredWindow].CollapseAll();
 
             }
-            void collapseEverythingElse()
+            void isolate()
             {
                 if (!curEvent.isKeyDown) return;
                 if (curEvent.keyCode != KeyCode.E) return;
@@ -879,10 +904,59 @@ namespace VFolders
                 controllers_byWindow[hoveredWindow].Isolate(lastHoveredTreeItem);
 
             }
+            void moveBack()
+            {
+                if (!curEvent.isMouseDown) return;
+                if (curEvent.mouseButton != 3) return;
+
+
+                var isOneColumn = hoveredWindow.GetMemberValue<int>("m_ViewMode") == 0;
+
+                if (isOneColumn) return;
+
+
+
+                if (!histories_byWindow.ContainsKey(hoveredWindow))
+                    histories_byWindow[hoveredWindow] = new(hoveredWindow);
+
+                var history = histories_byWindow[hoveredWindow];
+
+                if (!history.prevFolderPaths.Any()) return;
+
+
+                history.MoveBack_TwoColumns();
+
+            }
+            void moveForward()
+            {
+                if (!curEvent.isMouseDown) return;
+                if (curEvent.mouseButton != 4) return;
+
+
+                var isOneColumn = hoveredWindow.GetMemberValue<int>("m_ViewMode") == 0;
+
+                if (isOneColumn) return;
+
+
+
+                if (!histories_byWindow.ContainsKey(hoveredWindow))
+                    histories_byWindow[hoveredWindow] = new(hoveredWindow);
+
+                var history = histories_byWindow[hoveredWindow];
+
+                if (!history.nextFolderPaths.Any()) return;
+
+
+                history.MoveForward_TwoColumns();
+
+            }
+
 
             toggleExpanded();
-            collapseEverything();
-            collapseEverythingElse();
+            collapseAll();
+            isolate();
+            moveBack();
+            moveForward();
 
         }
 
@@ -1183,8 +1257,11 @@ namespace VFolders
                             else if (type == typeof(MonoScript))
                                 iconNames.Add("cs Script Icon");
 
-                            else if (AssetPreview.GetMiniTypeThumbnail(type)?.name is string iconName)
-                                iconNames.Add(iconName);
+                            else if (AssetPreview.GetMiniTypeThumbnail(type) is Texture2D icon)
+                                if (AssetDatabase.Contains(icon) && !icon.GetPath().StartsWith("Library"))
+                                    iconNames.Add(icon.GetPath());
+                                else
+                                    iconNames.Add(icon.name);
 
                     }
                     void filter()
@@ -1573,14 +1650,31 @@ namespace VFolders
         static Type t_VTabs = Type.GetType("VTabs.VTabs") ?? Type.GetType("VTabs.VTabs, VTabs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
         static Type t_VFavorites = Type.GetType("VFavorites.VFavorites") ?? Type.GetType("VFavorites.VFavorites, VFavorites, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
 
-        static MethodInfo mi_WrappedBrowserOnGUI = typeof(VFolders).GetMethod(nameof(WrappedGUI), maxBindingFlags);
+        static MethodInfo mi_WrappedGUI = typeof(VFolders).GetMethod(nameof(WrappedGUI), maxBindingFlags);
         static MethodInfo mi_VFavorites_WrappedOnGUI = t_VFavorites?.GetMethod("WrappedOnGUI", maxBindingFlags);
 
 
 
 
 
-        const string version = "2.1.5";
+
+#if UNITY_6000_3_OR_NEWER
+        public static EntityId ToIdType(this int id) => id;
+        public static List<int> ToInts(this List<EntityId> ids) => ids.Select(r => (int)r).ToList();
+        public static List<int> GetIdList(this object o, string listName) => o.GetMemberValue<List<EntityId>>(listName)?.ToInts();
+#else
+        public static int ToIdType(this int id) => id;
+        public static List<int> ToInts(this List<int> ids) => ids;
+        public static List<int> GetIdList(this object o, string listName) => o.GetMemberValue<List<int>>(listName);
+#endif
+
+
+
+
+
+
+
+        const string version = "2.1.13";
 
     }
 
